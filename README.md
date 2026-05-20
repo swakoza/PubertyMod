@@ -1,4 +1,4 @@
-![Mod Banner](https://i.imgur.com/WLCTnCK.png)
+![Mod Banner](https://postimg.cc/RJdCnv40)
 # Swakoza's Puberty Mod
 
 ### Description
@@ -11,4 +11,4 @@ G - Open Swakoza's Gender Menu
 
 ## License
 
-Swakoza's Puberty Mod is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/SwakozasPubertyMod/blob/fabric-1.20.2/LICENSE).
+Swakoza's Puberty Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/SwakozasPubertyMod/LICENSE).
