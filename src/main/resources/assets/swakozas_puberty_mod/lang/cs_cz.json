@@ -1,0 +1,48 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Menu ženského pohlaví",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.settings_button": "Nastavení",
+	"swakozas_puberty_mod.player_list.sync_status": "Status synchronizace",
+	"swakozas_puberty_mod.player_list.state.loading": "Načítaní dat...",
+	"swakozas_puberty_mod.player_list.state.synced": "Hráč synchronizován",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Houpání: %sx",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Hybnost: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Ženské zvuky: %s",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Velikost: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Mezera: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Výška: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Hloubka: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Natočení: %s°",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Nastavení vzhledu",
+	"swakozas_puberty_mod.char_settings.title": "Nastavení charakteru",
+	"swakozas_puberty_mod.char_settings.physics": "Fyzika prsou: %s",
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Schovat v brnění: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Ženské zvuky zranění: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Nahradí normální zvuky zranění za ženské",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Dvojí fyzika: %s",
+
+	"swakozas_puberty_mod.label.gender": "Pohlaví",
+	"swakozas_puberty_mod.label.female": "Žena",
+	"swakozas_puberty_mod.label.male": "Muž",
+	"swakozas_puberty_mod.label.other": "Jiné",
+
+	"swakozas_puberty_mod.label.enabled": "Zapnuto",
+	"swakozas_puberty_mod.label.disabled": "Vypnuto",
+	"swakozas_puberty_mod.label.yes": "Ano",
+	"swakozas_puberty_mod.label.no": "Ne",
+	"swakozas_puberty_mod.label.with_creator": "Hrajete na serveru s tvůrcem tohohle modu!",
+
+	"swakozas_puberty_mod.slider.bounce": "Intenzita houpání: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Hybnost: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Proč mám vůbec zaplou fyziku?",
+	"swakozas_puberty_mod.slider.max_bounce": "Anime fyzika!!!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Vysoké hodnoty 'Intenzity houpání' budou vypadat velmi nepřirozeně!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hej, právě probíhá měsíc povědomí o rakovině prsu!"
+}

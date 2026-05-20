@@ -1,56 +1,35 @@
 {
   "schemaVersion": 1,
-  "id": "wildfire_gender",
-  "version": "1.20.2-3.2.1",
-  "name": "Wildfire's Female Gender Mod",
-  "description": "Allows players to choose what gender they want to be.",
+  "id": "swakozas_puberty_mod",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "Adds configurable character gender and body appearance options.",
   "authors": [
-    "WildfireRomeo"
+    "swakoza"
   ],
-  "contributors": [
-    "Archl",
-    "Arcti_cc",
-    "celeste",
-    "diademiemi",
-    "IzzyBizzy45",
-    "Kichura",
-    "Powerless001",
-    "pupnewfster"
-  ],
-  "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/female-gender-fabric",
-    "sources": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/tree/master",
-    "issues": "https://github.com/WildfireRomeo/WildfireFemaleGenderMod/issues"
-  },
   "license": "LGPL-3.0",
-  "icon": "assets/wildfire_gender/icon.png",
+  "icon": "assets/swakozas_puberty_mod/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.wildfire.main.WildfireGenderServer"
+      "com.swakoza.pubertymod.main.SwakozaPubertyModServer"
     ],
     "client": [
-      "com.wildfire.main.WildfireGender"
+      "com.swakoza.pubertymod.main.SwakozaPubertyMod"
     ]
   },
   "mixins": [
-    "wildfire_gender.mixins.json"
+    "swakozas_puberty_mod.mixins.json"
   ],
   "depends": {
     "fabricloader": "*",
     "fabric-api": "*",
-    "minecraft": "~1.20.2",
-    "java": ">=17"
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=21"
   },
   "conflicts": {
     "skinlayers": "*",
     "allthetrims": "*"
   },
-  "custom": {
-    "modmenu": {
-      "links": {
-        "modmenu.discord": "https://discord.gg/4VDfQu4Wgb"
-      }
-    }
-  }
+  "custom": {}
 }

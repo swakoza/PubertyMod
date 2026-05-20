@@ -1,88 +1,151 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-repositories {
-	maven {
-		name = "Jitpack"
-		url 'https://jitpack.io'
-	}
-	maven {
-		url "https://maven.terraformersmc.com/"
-	}
-	maven {
-		url "https://maven.jamieswhiteshirt.com/libs-release/"
-	}
-	maven {
-		url "https://maven.shedaniel.me/"
-	}
-	maven {
-		url = 'https://maven.cafeteria.dev'
-		content {
-			includeGroup 'net.adriantodt.fabricmc'
-		}
-	}
-	maven {
-		name = "Ladysnake Libs"
-		url = 'https://ladysnake.jfrog.io/artifactory/mods'
-	}
-	maven {
-		url = 'https://repo.minelittlepony-mod.com/maven/release'
-	}
-	mavenCentral()
+base {
+	archivesName = project.archives_base_name
+}
 
+def versionSpecificJavaSources = []
+def excludedMainJava = []
+
+if (project.minecraft_version == "1.21.10") {
+	excludedMainJava += [
+			"com/swakoza/pubertymod/render/RenderLayerCompat.java"
+	]
+}
+
+if (project.minecraft_version == "1.21.6" || project.minecraft_version == "1.21.4") {
+	excludedMainJava += [
+			"com/swakoza/pubertymod/gui/SwakozaButton.java",
+			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
+			"com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java",
+			"com/swakoza/pubertymod/gui/SwakozaPlayerList.java",
+			"com/swakoza/pubertymod/gui/screen/SwakozaBreastCustomizationScreen.java",
+			"com/swakoza/pubertymod/gui/screen/SwakozaCharacterSettingsScreen.java",
+			"com/swakoza/pubertymod/render/GenderLayer.java",
+			"com/swakoza/pubertymod/render/GenderArmorLayer.java",
+			"com/swakoza/pubertymod/render/RenderLayerCompat.java"
+	]
+}
+
+if (project.minecraft_version == "1.21.1") {
+	excludedMainJava += [
+			"com/swakoza/pubertymod/compat/ArmorTrimCompat.java",
+			"com/swakoza/pubertymod/gui/SwakozaButton.java",
+			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
+			"com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java",
+			"com/swakoza/pubertymod/gui/SwakozaPlayerList.java",
+			"com/swakoza/pubertymod/gui/screen/SwakozaBreastCustomizationScreen.java",
+			"com/swakoza/pubertymod/gui/screen/SwakozaCharacterSettingsScreen.java",
+			"com/swakoza/pubertymod/main/SwakozaHelper.java",
+			"com/swakoza/pubertymod/mixins/ArmorStandEntityMixin.java",
+			"com/swakoza/pubertymod/mixins/ArmorStandEntityRendererMixin.java",
+			"com/swakoza/pubertymod/mixins/LivingEntityMixin.java",
+			"com/swakoza/pubertymod/mixins/LivingEntityRendererMixin.java",
+			"com/swakoza/pubertymod/mixins/LivingEntityRenderStateMixin.java",
+			"com/swakoza/pubertymod/mixins/PlayerRenderMixin.java",
+			"com/swakoza/pubertymod/render/GenderLayer.java",
+			"com/swakoza/pubertymod/render/GenderArmorLayer.java",
+			"com/swakoza/pubertymod/render/RenderLayerCompat.java",
+			"com/swakoza/pubertymod/render/SwakozaEntityRenderState.java"
+	]
+}
+
+if (project.minecraft_version == "1.21.6") {
+	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java")
+}
+
+if (project.minecraft_version == "1.21.10") {
+	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
+		include "com/swakoza/pubertymod/render/RenderLayerCompat.java"
+	}
+}
+
+if (project.minecraft_version == "1.21.4") {
+	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
+		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+	}
+	versionSpecificJavaSources += fileTree("src/versions/1.21.4/java")
+}
+
+if (project.minecraft_version == "1.21.1") {
+	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
+		exclude "com/swakoza/pubertymod/gui/SwakozaButton.java"
+		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+		exclude "com/swakoza/pubertymod/render/GenderLayer.java"
+		exclude "com/swakoza/pubertymod/render/GenderArmorLayer.java"
+	}
+	versionSpecificJavaSources += fileTree("src/versions/1.21.4/java") {
+		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+	}
+	versionSpecificJavaSources += fileTree("src/versions/1.21.1/java")
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "mod_name", project.mod_name
+	inputs.property "minecraft_dependency", project.minecraft_dependency
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand inputs.properties
+	}
+
+	if (project.minecraft_version == "1.21.1") {
+		from("src/versions/1.21.1/resources")
+		eachFile { details ->
+			if (details.path == "swakozas_puberty_mod.mixins.json"
+					&& details.file.absolutePath.replace('\\', '/').contains("/src/main/resources/")) {
+				details.exclude()
+			}
+		}
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	it.options.release = 21
+}
+
+tasks.named("compileJava", JavaCompile).configure {
+	if (!versionSpecificJavaSources.isEmpty()) {
+		it.source = files(fileTree("src/main/java") {
+			exclude excludedMainJava
+		}, versionSpecificJavaSources)
+	}
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.archives_base_name}" }
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		create("mavenJava", MavenPublication) {
 			from components.java
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
 	}
 }

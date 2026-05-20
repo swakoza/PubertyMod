@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.swakoza.pubertymod.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorStandEntityMixin",
+    "LivingEntityMixin"
+  ],
+  "client": [
+    "ArmorStandEntityRendererMixin",
+    "PlayerRenderMixin",
+    "BreastPhysicsTickMixin",
+    "LivingEntityRenderStateMixin",
+    "LivingEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

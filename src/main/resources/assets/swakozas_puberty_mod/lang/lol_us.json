@@ -1,0 +1,48 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Women Gunda Mano",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.settings_button": "Setinz",
+	"swakozas_puberty_mod.player_list.sync_status": "Sinc stauz",
+	"swakozas_puberty_mod.player_list.state.loading": "Dawnludin fush...",
+	"swakozas_puberty_mod.player_list.state.synced": "Dawnludedd kat",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Crazy Bouncy: %sx",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Haw huvy: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Nyas: %s",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Baluon saiz: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Wher u goin: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Lifd of: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Dats dep: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "How speen: %s digris",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Wat u luk laik",
+	"swakozas_puberty_mod.char_settings.title": "Wat iz dat sopsoss 2 luk laik",
+	"swakozas_puberty_mod.char_settings.physics": "Bouncy-Bouncy: %s",
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Hait shirt plz: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Women kat oofs: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Maiks kats oof.",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Double bouncy-bouncy: %s",
+
+	"swakozas_puberty_mod.label.gender": "Gunda",
+	"swakozas_puberty_mod.label.female": "Women",
+	"swakozas_puberty_mod.label.male": "MAN",
+	"swakozas_puberty_mod.label.other": "ferret",
+
+	"swakozas_puberty_mod.label.enabled": "enaibedd",
+	"swakozas_puberty_mod.label.disabled": "dissaibedd",
+	"swakozas_puberty_mod.label.yes": "pls",
+	"swakozas_puberty_mod.label.no": "naw",
+	"swakozas_puberty_mod.label.with_creator": "pett owna iz un serva gg",
+
+	"swakozas_puberty_mod.slider.bounce": "Crazy Bouncy: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Haw huvy: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Wat iz bouncy?",
+	"swakozas_puberty_mod.slider.max_bounce": "BALONS!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Usin 'Crazy Bouncy' 2 haiar valve iz luk badd!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hay, It cancor awarniss mouth!"
+}

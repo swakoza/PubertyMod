@@ -1,0 +1,48 @@
+{
+  "category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+  "key.swakozas_puberty_mod.gender_menu": "性别菜单",
+
+  "swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+  "swakozas_puberty_mod.player_list.settings_button": "设置",
+  "swakozas_puberty_mod.player_list.sync_status": "同步状态",
+  "swakozas_puberty_mod.player_list.state.loading": "正在加载数据...",
+  "swakozas_puberty_mod.player_list.state.synced": "同步玩家",
+  "swakozas_puberty_mod.player_list.bounce_multiplier": "反弹系数：%sx",
+  "swakozas_puberty_mod.player_list.breast_momentum": "乳房动量：%s%%",
+  "swakozas_puberty_mod.player_list.female_sounds": "女性声音：%s",
+
+  "swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+  "swakozas_puberty_mod.wardrobe.slider.breast_size": "乳房大小：%s%%",
+  "swakozas_puberty_mod.wardrobe.slider.separation": "分离：%s",
+  "swakozas_puberty_mod.wardrobe.slider.height": "高度：%s",
+  "swakozas_puberty_mod.wardrobe.slider.depth": "深度：%s",
+  "swakozas_puberty_mod.wardrobe.slider.rotation": "旋转：%s度",
+
+  "swakozas_puberty_mod.appearance_settings.title": "外观设置",
+  "swakozas_puberty_mod.char_settings.title": "角色设置",
+  "swakozas_puberty_mod.char_settings.physics": "乳房物理：%s",
+  "swakozas_puberty_mod.char_settings.hide_in_armor": "隐藏在盔甲中：%s",
+  "swakozas_puberty_mod.char_settings.hurt_sounds": "女性受伤的声音：%s",
+  "swakozas_puberty_mod.tooltip.hurt_sounds": "使女性受伤的声音",
+
+  "swakozas_puberty_mod.breast_customization.dual_physics": "对偶物理：%s",
+
+  "swakozas_puberty_mod.label.gender": "性别",
+  "swakozas_puberty_mod.label.female": "女性",
+  "swakozas_puberty_mod.label.male": "男性",
+  "swakozas_puberty_mod.label.other": "其他",
+
+  "swakozas_puberty_mod.label.enabled": "启用",
+  "swakozas_puberty_mod.label.disabled": "禁用",
+  "swakozas_puberty_mod.label.yes": "是",
+  "swakozas_puberty_mod.label.no": "否",
+  "swakozas_puberty_mod.label.with_creator": "您正在与该模组的作者一起在服务器上玩！",
+
+  "swakozas_puberty_mod.slider.bounce": "弹跳强度：%s%%",
+  "swakozas_puberty_mod.slider.floppy": "乳房动量：%s%%",
+  "swakozas_puberty_mod.slider.min_bounce": "为什么开启物理？",
+  "swakozas_puberty_mod.slider.max_bounce": "动漫乳房物理!!!",
+  "swakozas_puberty_mod.tooltip.bounce_warning": "将“反弹强度”设置为高值看起来非常不自然！",
+
+  "swakozas_puberty_mod.cancer_awareness.title": "嘿，这是乳腺癌宣传月！"
+}

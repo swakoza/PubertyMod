@@ -1,0 +1,48 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Geschlechtsmenu",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.settings_button": "Iistellige",
+	"swakozas_puberty_mod.player_list.sync_status": "Synchronisierigsstatus",
+	"swakozas_puberty_mod.player_list.state.loading": "Lade Spieler..",
+	"swakozas_puberty_mod.player_list.state.synced": "Spieler glade!",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Wackel Multiplikator: %s%%",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Brust Schwung: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Wiibliche Soundeffekte: %s",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Brustgrössi: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Separierig: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Höhi: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Tiefi: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Drehig: %s degrees",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Ussehe",
+	"swakozas_puberty_mod.char_settings.title": "Character Iinstellige",
+	"swakozas_puberty_mod.char_settings.physics": "Brustphysik: %s",
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Versteckt mit Rüstig: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Wiibliche Soundeffekte: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Wiibliche Soundeffekt",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Dualphysik: %s",
+
+	"swakozas_puberty_mod.label.gender": "Geschlecht",
+	"swakozas_puberty_mod.label.female": "Wiiblich",
+	"swakozas_puberty_mod.label.male": "Mänlich",
+	"swakozas_puberty_mod.label.other": "Anderi",
+
+	"swakozas_puberty_mod.label.enabled": "Aktiviert",
+	"swakozas_puberty_mod.label.disabled": "Deaktiviert",
+	"swakozas_puberty_mod.label.yes": "Ja",
+	"swakozas_puberty_mod.label.no": "Nei",
+	"swakozas_puberty_mod.label.with_creator": "Du spielsch uf nem Server mit dem Programmierer vu dem Mod!",
+
+	"swakozas_puberty_mod.slider.bounce": "Wackel Intensität: %sx",
+	"swakozas_puberty_mod.slider.floppy": "Brust Schwung: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Warum sind Physike aktiviert?",
+	"swakozas_puberty_mod.slider.max_bounce": "Anime Brust Physik!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Wenn 'Wackel Intensität' z'höch iigstellt isch, gsehts unnatürlich uus!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hey, s'isch Brustkrebsmonet"
+}

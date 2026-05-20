@@ -1,0 +1,48 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Menu de genero",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.settings_button": "Ajustes",
+	"swakozas_puberty_mod.player_list.sync_status": "Estatus de sincronización",
+	"swakozas_puberty_mod.player_list.state.loading": "Cargando datos...",
+	"swakozas_puberty_mod.player_list.state.synced": "Jugador Sincronizado",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Multiplicador de rebote: %sx",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Ímpetu del busto: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Sonidos femeninos: %s",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Tamaño del busto: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Separación: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Altura: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Profundidad: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Rotación: %s grados",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Ajustes de apariencia",
+	"swakozas_puberty_mod.char_settings.title": "Ajustes de personaje",
+	"swakozas_puberty_mod.char_settings.physics": "Físicas del busto: %s",
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Esconder en la armadura: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Sonidos de dolor: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Habilita sonidos nuevos femeninos",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Físicas duales: %s",
+
+	"swakozas_puberty_mod.label.gender": "Género",
+	"swakozas_puberty_mod.label.female": "Mujer",
+	"swakozas_puberty_mod.label.male": "Hombre",
+	"swakozas_puberty_mod.label.other": "Otro",
+
+	"swakozas_puberty_mod.label.enabled": "Si",
+	"swakozas_puberty_mod.label.disabled": "No",
+	"swakozas_puberty_mod.label.yes": "Sí",
+	"swakozas_puberty_mod.label.no": "No",
+	"swakozas_puberty_mod.label.with_creator": "¡Estás jugando en un servidor con la creadora del mod!",
+
+	"swakozas_puberty_mod.slider.bounce": "Intensidad de rebote: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Ímpetu del busto: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "¿Para que encendiste las físicas?",
+	"swakozas_puberty_mod.slider.max_bounce": "¡¡¡FÍSICAS DE ANIME!!!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Colocar la 'Intensidad de rebote' muy alta se vera muy anti-natural.",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hey, es el mes de concientización sobre el cáncer de mama"
+}

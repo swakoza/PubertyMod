@@ -1,0 +1,66 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Меню пола",
+	"toast.swakozas_puberty_mod.get_started": "Нажмите '%s', чтобы начать!",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.search": "Поиск по нику",
+	"swakozas_puberty_mod.player_list.settings_button": "Настройки",
+	"swakozas_puberty_mod.player_list.sync_status": "Статус синхронизации",
+	"swakozas_puberty_mod.player_list.state.loading": "Загрузка данных...",
+	"swakozas_puberty_mod.player_list.state.synced": "Игрок синхронизирован",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Интенсивность отскока: %sx",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Инерция груди: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Женские звуки: %s",
+	"swakozas_puberty_mod.player_list.details": "Информация",
+	"swakozas_puberty_mod.player_list.hover_preview": "Наведите на игрока",
+	"swakozas_puberty_mod.player_list.hover_details": "Наведите на игрока",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.breast_customization.tab_customization": "Настройка",
+	"swakozas_puberty_mod.breast_customization.tab_presets": "Пресеты",
+
+	"swakozas_puberty_mod.breast_customization.presets.add_new": "Добавить...",
+	"swakozas_puberty_mod.breast_customization.presets.delete": "Удалить",
+	"swakozas_puberty_mod.breast_customization.presets.empty": "Пресеты не найдены",
+
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Размер груди: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Расстояние: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Высота: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Глубина: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Поворот: %s градусов",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Настройки внешности",
+	"swakozas_puberty_mod.char_settings.title": "Настройки персонажа",
+	"swakozas_puberty_mod.char_settings.physics": "Физика груди: %s",
+
+	"swakozas_puberty_mod.char_settings.override_armor_physics": "Физика брони: %s",
+	"swakozas_puberty_mod.tooltip.override_armor_physics.line1": "Когда включено, экипированная броня больше не будет уменьшать или подавлять физику груди",
+	"swakozas_puberty_mod.tooltip.override_armor_physics.line2": "Полезно для ресурспаков, которые скрывают броню, или похожих минималистичных наборов брони",
+
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Скрывать в броне: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Женские звуки урона: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Персонаж будет издавать женский звук урона, если пол установлен на Женский или Другое",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Раздельная физика: %s",
+
+	"swakozas_puberty_mod.label.gender": "Пол",
+	"swakozas_puberty_mod.label.female": "Женский",
+	"swakozas_puberty_mod.label.male": "Мужской",
+	"swakozas_puberty_mod.label.other": "Другое",
+
+	"swakozas_puberty_mod.label.enabled": "Включено",
+	"swakozas_puberty_mod.label.disabled": "Отключено",
+	"swakozas_puberty_mod.label.yes": "Да",
+	"swakozas_puberty_mod.label.no": "Нет",
+	"swakozas_puberty_mod.label.with_creator": "Вы играете на сервере с создателем этого мода!",
+
+	"swakozas_puberty_mod.slider.bounce": "Интенсивность отскока: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Инерция груди: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Зачем вообще включать физику?",
+	"swakozas_puberty_mod.slider.max_bounce": "Аниме-физика груди!!!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Высокая интенсивность отскока будет выглядеть очень неестественно!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Эй, сейчас месяц осведомлённости о раке груди!",
+	"swakozas_puberty_mod.coming_soon": "Скоро"
+}

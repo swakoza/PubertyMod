@@ -1,0 +1,41 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Geschlechtsmenü",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.settings_button": "Einstellungen",
+	"swakozas_puberty_mod.player_list.sync_status": "Synchronisierungsstatus",
+	"swakozas_puberty_mod.player_list.state.loading": "Lade Spieler..",
+	"swakozas_puberty_mod.player_list.state.synced": "Geladener Spieler",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Brustgröße: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Separierung: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Höhe: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Tiefe: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Drehung: %s degrees",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Aussehen",
+	"swakozas_puberty_mod.char_settings.title": "Spieler Einstellungen",
+	"swakozas_puberty_mod.char_settings.physics": "Brustphysik: %s",
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Versteckt mit Rüstung: %s",
+
+	"swakozas_puberty_mod.label.gender": "Geschlecht",
+	"swakozas_puberty_mod.label.female": "Weiblich",
+	"swakozas_puberty_mod.label.male": "Männlich",
+	"swakozas_puberty_mod.label.other": "Andere",
+
+	"swakozas_puberty_mod.label.enabled": "Aktiviert",
+	"swakozas_puberty_mod.label.disabled": "Deaktiviert",
+	"swakozas_puberty_mod.label.yes": "Ja",
+	"swakozas_puberty_mod.label.no": "Nein",
+	"swakozas_puberty_mod.label.with_creator": "Du spielst auf einem Server mit dem Programmierer dieser Mod!",
+
+	"swakozas_puberty_mod.slider.bounce": "Wackel Intensität: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Brust Schwung: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Warum ist die Physik überhaupt an?",
+	"swakozas_puberty_mod.slider.max_bounce": "Anime Brust Physik!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Wenn die 'Wackel Intensität' zu stark einstellen ist sieht es nicht sehr natürlich aus!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hey, es ist Monat des Brustkrebses!"
+}

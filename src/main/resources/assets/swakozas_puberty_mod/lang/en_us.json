@@ -1,0 +1,66 @@
+{
+	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"key.swakozas_puberty_mod.gender_menu": "Puberty Mod Menu",
+	"toast.swakozas_puberty_mod.get_started": "Press '%s' to get started!",
+
+	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.search": "Search by nickname",
+	"swakozas_puberty_mod.player_list.settings_button": "Settings",
+	"swakozas_puberty_mod.player_list.sync_status": "Sync Status",
+	"swakozas_puberty_mod.player_list.state.loading": "Loading Data...",
+	"swakozas_puberty_mod.player_list.state.synced": "Synced Player",
+	"swakozas_puberty_mod.player_list.bounce_multiplier": "Bounce Multiplier: %sx",
+	"swakozas_puberty_mod.player_list.breast_momentum": "Breast Momentum: %s%%",
+	"swakozas_puberty_mod.player_list.female_sounds": "Female Sounds: %s",
+	"swakozas_puberty_mod.player_list.details": "Details",
+	"swakozas_puberty_mod.player_list.hover_preview": "Hover a player",
+	"swakozas_puberty_mod.player_list.hover_details": "Hover a player row to preview",
+
+	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.breast_customization.tab_customization": "Customization",
+	"swakozas_puberty_mod.breast_customization.tab_presets": "Presets",
+
+	"swakozas_puberty_mod.breast_customization.presets.add_new": "Add New...",
+	"swakozas_puberty_mod.breast_customization.presets.delete": "Delete",
+	"swakozas_puberty_mod.breast_customization.presets.empty": "No presets found",
+
+	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Breast Size: %s%%",
+	"swakozas_puberty_mod.wardrobe.slider.separation": "Separation: %s",
+	"swakozas_puberty_mod.wardrobe.slider.height": "Height: %s",
+	"swakozas_puberty_mod.wardrobe.slider.depth": "Depth: %s",
+	"swakozas_puberty_mod.wardrobe.slider.rotation": "Rotation: %s degrees",
+
+	"swakozas_puberty_mod.appearance_settings.title": "Appearance Settings",
+	"swakozas_puberty_mod.char_settings.title": "Character Settings",
+	"swakozas_puberty_mod.char_settings.physics": "Breast Physics: %s",
+
+	"swakozas_puberty_mod.char_settings.override_armor_physics": "Armor Physics: %s",
+	"swakozas_puberty_mod.tooltip.override_armor_physics.line1": "Breast physics will no longer be reduced/suppressed by your equipped armor while enabled",
+	"swakozas_puberty_mod.tooltip.override_armor_physics.line2": "This is intended for use with resource packs that hide armor, or any similar minimal armor packs",
+
+	"swakozas_puberty_mod.char_settings.hide_in_armor": "Hide In Armor: %s",
+	"swakozas_puberty_mod.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
+	"swakozas_puberty_mod.tooltip.hurt_sounds": "Your character will play a female hurt sound when taking damage if your gender is set to either Female or Other",
+
+	"swakozas_puberty_mod.breast_customization.dual_physics": "Dual-Physics: %s",
+
+	"swakozas_puberty_mod.label.gender": "Gender",
+	"swakozas_puberty_mod.label.female": "Female",
+	"swakozas_puberty_mod.label.male": "Male",
+	"swakozas_puberty_mod.label.other": "Other",
+
+	"swakozas_puberty_mod.label.enabled": "Enabled",
+	"swakozas_puberty_mod.label.disabled": "Disabled",
+	"swakozas_puberty_mod.label.yes": "Yes",
+	"swakozas_puberty_mod.label.no": "No",
+	"swakozas_puberty_mod.label.with_creator": "You are playing on a server with the creator of this mod!",
+
+	"swakozas_puberty_mod.slider.bounce": "Bounce Intensity: %s%%",
+	"swakozas_puberty_mod.slider.floppy": "Breast Momentum: %s%%",
+	"swakozas_puberty_mod.slider.min_bounce": "Why Are Physics Even On?",
+	"swakozas_puberty_mod.slider.max_bounce": "Anime Breast Physics!!!",
+	"swakozas_puberty_mod.tooltip.bounce_warning": "Setting 'Bounce Intensity' to a high value will look very unnatural!",
+
+	"swakozas_puberty_mod.cancer_awareness.title": "Hey, it's Breast Cancer Awareness Month!",
+	"swakozas_puberty_mod.coming_soon": "Coming soon"
+}
