@@ -1,4 +1,4 @@
-![Mod Banner](https://postimg.cc/RJdCnv40)
+![Mod Banner](https://media.discordapp.net/attachments/1450628867428716575/1506700749999177878/spm_banner.png?ex=6a0f37eb&is=6a0de66b&hm=861e2ebed57c3210423f1690a1e33e2b7a94b4d788f0403d65ccf53d9b025aa6&=&format=webp&quality=lossless&width=1755&height=480)
 # Swakoza's Puberty Mod
 
 ### Description
