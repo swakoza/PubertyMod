@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 package com.swakoza.pubertymod.main;
 
 import com.swakoza.pubertymod.gui.screen.SwakozaPlayerListScreen;
+import com.swakoza.pubertymod.gui.screen.WardrobeBrowserScreen;
 import com.swakoza.pubertymod.compat.KeyBindingCompat;
 import com.swakoza.pubertymod.main.entitydata.EntityConfig;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
@@ -38,6 +39,9 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
@@ -47,6 +51,8 @@ import java.util.UUID;
 public class SwakozaEventHandler {
 	public static final KeyBinding toggleEditGUI = KeyBindingHelper.registerKeyBinding(
 			KeyBindingCompat.create("key.swakozas_puberty_mod.gender_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, SwakozaPubertyMod.id("generic")));
+	public static final KeyBinding editTargetPlayerGUI = KeyBindingHelper.registerKeyBinding(
+			KeyBindingCompat.create("key.swakozas_puberty_mod.target_player_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, SwakozaPubertyMod.id("generic")));
 	private static long timer = 0;
 
 	public static void registerClientEvents() {
@@ -89,6 +95,22 @@ public class SwakozaEventHandler {
 		if(toggleEditGUI.wasPressed() && client.currentScreen == null) {
 			client.setScreen(new SwakozaPlayerListScreen());
 		}
+
+		if(editTargetPlayerGUI.wasPressed() && client.currentScreen == null) {
+			openTargetPlayerMenu(client);
+		}
+	}
+
+	private static void openTargetPlayerMenu(MinecraftClient client) {
+		HitResult target = client.crosshairTarget;
+		if(!(target instanceof EntityHitResult entityHitResult)) return;
+		if(!(entityHitResult.getEntity() instanceof PlayerEntity targetPlayer)) return;
+
+		PlayerConfig targetConfig = SwakozaPubertyMod.getOrAddPlayerById(targetPlayer.getUuid());
+		if(!targetPlayer.getUuid().equals(client.player.getUuid()) && targetConfig.getSyncStatus() == PlayerConfig.SyncStatus.UNKNOWN) {
+			SwakozaSync.requestPlayerData(targetPlayer.getUuid());
+		}
+		client.setScreen(new WardrobeBrowserScreen(null, targetPlayer.getUuid()));
 	}
 
 	private static void disconnect(ClientPlayNetworkHandler networkHandler, MinecraftClient client) {

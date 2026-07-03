@@ -1,9 +1,14 @@
 {
-	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Puberty Mod Menu",
+	"key.swakozas_puberty_mod.target_player_menu": "Edit Target Player",
 	"toast.swakozas_puberty_mod.get_started": "Press '%s' to get started!",
+	"modmenu.descriptionTranslation.swakozas_puberty_mod": "Adds configurable character gender, body appearance options, female hurt sounds, and per-player custom sound settings.",
+	"modmenu.summaryTranslation.swakozas_puberty_mod": "Configurable gender, appearance, and custom female hurt sounds.",
 
-	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
 	"swakozas_puberty_mod.player_list.search": "Search by nickname",
 	"swakozas_puberty_mod.player_list.settings_button": "Settings",
 	"swakozas_puberty_mod.player_list.sync_status": "Sync Status",
@@ -15,8 +20,9 @@
 	"swakozas_puberty_mod.player_list.details": "Details",
 	"swakozas_puberty_mod.player_list.hover_preview": "Hover a player",
 	"swakozas_puberty_mod.player_list.hover_details": "Hover a player row to preview",
+	"swakozas_puberty_mod.tooltip.nearby_players": "Show nearby players",
 
-	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
 	"swakozas_puberty_mod.breast_customization.tab_customization": "Customization",
 	"swakozas_puberty_mod.breast_customization.tab_presets": "Presets",
 
@@ -41,6 +47,12 @@
 	"swakozas_puberty_mod.char_settings.hide_in_armor": "Hide In Armor: %s",
 	"swakozas_puberty_mod.char_settings.hurt_sounds": "Female Hurt Sounds: %s",
 	"swakozas_puberty_mod.tooltip.hurt_sounds": "Your character will play a female hurt sound when taking damage if your gender is set to either Female or Other",
+	"swakozas_puberty_mod.char_settings.hurt_sound_volume": "Female sound volume: %s%%",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound": "Custom sound: %s",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.not_selected": "Not selected",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.selected_count": "%s selected",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.not_vorbis": " (not Vorbis)",
+	"swakozas_puberty_mod.char_settings.hurt_sound_overlay": "Sound overlap: %s",
 
 	"swakozas_puberty_mod.breast_customization.dual_physics": "Dual-Physics: %s",
 

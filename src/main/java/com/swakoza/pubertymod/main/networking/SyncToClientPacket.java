@@ -27,6 +27,11 @@ public class SyncToClientPacket extends SyncPacket {
     public void handle(PlayerEntity player) {
         if (!player.getUuid().equals(uuid)) {
             PlayerConfig plr = SwakozaPubertyMod.getOrAddPlayerById(uuid);
+            if (plr.hasLocalConfig()) {
+                plr.syncStatus = PlayerConfig.SyncStatus.CACHED;
+                SwakozaSync.markPlayerDataReceived(uuid);
+                return;
+            }
             updatePlayerFromPacket(plr);
             plr.syncStatus = PlayerConfig.SyncStatus.SYNCED;
             SwakozaSync.markPlayerDataReceived(uuid);

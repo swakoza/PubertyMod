@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@ package com.swakoza.pubertymod.render;
 
 import com.swakoza.pubertymod.api.IGenderArmor;
 import com.swakoza.pubertymod.compat.EntityCompat;
+import com.swakoza.pubertymod.gui.SwakozaPreviewPlayerEntity;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
 import com.swakoza.pubertymod.main.SwakozaHelper;
 import com.swakoza.pubertymod.main.entitydata.Breasts;
@@ -174,6 +175,7 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected boolean setupRender(LivingEntity entity, S state, float tickProgress) {
 		if(entity.isBaby()) return false;
+		boolean previewEntity = entity instanceof SwakozaPreviewPlayerEntity;
 
 		this.armorStack = state.equippedChestStack;
 		this.genderArmor = SwakozaHelper.getArmorConfig(this.armorStack);
@@ -193,7 +195,7 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 		this.breastOffsetZ = -Math.round((Math.round(this.breasts.getZOffset() * 100f) / 100f) * 10) / 10f;
 
 		BreastPhysics leftBreastPhysics = this.entityConfig.getLeftBreastPhysics();
-		final float bSize = leftBreastPhysics.getBreastSize(tickProgress);
+		final float bSize = previewEntity ? getStaticBreastSize() : leftBreastPhysics.getBreastSize(tickProgress);
 		this.outwardAngle = Math.min((Math.round(this.breasts.getCleavage() * 100f) / 100f) * 100f, 10);
 
 		float reducer = -1;
@@ -206,18 +208,27 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 			this.preBreastSize = bSize;
 		}
 
-		this.lPhysPositionY = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
-		this.lPhysPositionX = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
-		this.lPhysBounceRotation = MathHelper.lerp(tickProgress, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
-		if(this.breasts.isUniboob()) {
-			this.rPhysPositionY = this.lPhysPositionY;
-			this.rTotalX = this.lPhysPositionX;
-			this.rPhysBounceRotation = this.lPhysBounceRotation;
+		if(previewEntity) {
+			this.lPhysPositionY = 0;
+			this.lPhysPositionX = 0;
+			this.lPhysBounceRotation = 0;
+			this.rPhysPositionY = 0;
+			this.rTotalX = 0;
+			this.rPhysBounceRotation = 0;
 		} else {
-			BreastPhysics rightBreastPhysics = this.entityConfig.getRightBreastPhysics();
-			this.rPhysPositionY = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
-			this.rTotalX = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
-			this.rPhysBounceRotation = MathHelper.lerp(tickProgress, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
+			this.lPhysPositionY = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
+			this.lPhysPositionX = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
+			this.lPhysBounceRotation = MathHelper.lerp(tickProgress, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
+			if(this.breasts.isUniboob()) {
+				this.rPhysPositionY = this.lPhysPositionY;
+				this.rTotalX = this.lPhysPositionX;
+				this.rPhysBounceRotation = this.lPhysBounceRotation;
+			} else {
+				BreastPhysics rightBreastPhysics = this.entityConfig.getRightBreastPhysics();
+				this.rPhysPositionY = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
+				this.rTotalX = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
+				this.rPhysBounceRotation = MathHelper.lerp(tickProgress, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
+			}
 		}
 
 		this.breastSize = bSize * 1.5f;
@@ -229,12 +240,20 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 		this.breastSize = bSize + 0.5f * Math.abs(bSize - 0.7f) * 2f;
 
 		float resistance = MathHelper.clamp(this.genderArmor.physicsResistance(), 0, 1);
-		this.breathingAnimation = ((this.entityConfig.getArmorPhysicsOverride() || resistance <= 0.5F)
+		this.breathingAnimation = !previewEntity && ((this.entityConfig.getArmorPhysicsOverride() || resistance <= 0.5F)
 				&& (!entity.isSubmergedInWater()
 				|| StatusEffectUtil.hasWaterBreathing(entity)
 				|| EntityCompat.getWorld(entity).getBlockState(new BlockPos(entity.getBlockX(), entity.getBlockY(), entity.getBlockZ())).isOf(Blocks.BUBBLE_COLUMN)));
-		this.bounceEnabled = this.entityConfig.hasBreastPhysics() && (!this.isChestplateOccupied || resistance < 1);
+		this.bounceEnabled = !previewEntity && this.entityConfig.hasBreastPhysics() && (!this.isChestplateOccupied || resistance < 1);
 		return true;
+	}
+
+	protected float getStaticBreastSize() {
+		if(!this.entityConfig.getGender().canHaveBreasts()) return 0f;
+		float targetBreastSize = this.entityConfig.getBustSize();
+		float tightness = MathHelper.clamp(this.genderArmor.tightness(), 0, 1);
+		if(this.entityConfig.getArmorPhysicsOverride()) tightness = 0;
+		return targetBreastSize * (1 - 0.15F * tightness);
 	}
 
 	protected void setupTransformations(LivingEntity entity, S state, ModelPart body, MatrixStack matrices, BreastSide side) {

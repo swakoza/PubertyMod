@@ -3,6 +3,7 @@ package com.swakoza.pubertymod.gui.screen;
 import com.swakoza.pubertymod.gui.SwakozaButton;
 import com.swakoza.pubertymod.gui.SwakozaScreenStyle;
 import com.swakoza.pubertymod.gui.SwakozaSlider;
+import com.swakoza.pubertymod.main.CustomHurtSoundManager;
 import com.swakoza.pubertymod.main.SwakozaHelper;
 import com.swakoza.pubertymod.main.config.Configuration;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
@@ -14,6 +15,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
@@ -21,10 +24,16 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     private static final Text DISABLED = Text.translatable("swakozas_puberty_mod.label.disabled").formatted(Formatting.RED);
     private static final int PANEL_WIDTH = 224;
     private static final int PANEL_HEIGHT = 176;
+    private static final int PANEL_HEIGHT_WITH_CUSTOM_SOUND = 248;
+    private static final int CUSTOM_SOUND_OPTION_HEIGHT = 18;
+    private static final int CUSTOM_SOUND_DROPDOWN_VISIBLE_OPTIONS = 5;
 
     private SwakozaSlider bounceSlider;
     private SwakozaSlider floppySlider;
+    private SwakozaSlider hurtSoundVolumeSlider;
     private boolean bounceWarning;
+    private boolean customSoundDropdownOpen;
+    private int customSoundDropdownScroll;
 
     protected SwakozaCharacterSettingsScreen(Screen parent, UUID uuid) {
         super(Text.translatable("swakozas_puberty_mod.char_settings.title"), parent, uuid);
@@ -94,10 +103,135 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
             if (player.updateHurtSounds(enableHurtSounds)) {
                 button.setMessage(Text.translatable("swakozas_puberty_mod.char_settings.hurt_sounds", enableHurtSounds ? ENABLED : DISABLED));
                 PlayerConfig.saveGenderInfo(player);
+                if (!enableHurtSounds) {
+                    this.customSoundDropdownOpen = false;
+                    this.customSoundDropdownScroll = 0;
+                }
+                this.clearAndInit();
             }
         }, Tooltip.of(Text.translatable("swakozas_puberty_mod.tooltip.hurt_sounds"))));
 
+        if (player.hasHurtSounds()) {
+            this.addDrawableChild(this.hurtSoundVolumeSlider = new SwakozaSlider(buttonX, buttonY + 144, buttonWidth, 20,
+                    Configuration.HURT_SOUND_VOLUME, player.getHurtSoundVolume(), value -> {
+            }, value -> Text.translatable("swakozas_puberty_mod.char_settings.hurt_sound_volume", Math.round(value * 100)), value -> {
+                if (player.updateHurtSoundVolume(value)) {
+                    PlayerConfig.saveGenderInfo(player);
+                }
+            }));
+
+            this.addDrawableChild(new SwakozaButton(buttonX, buttonY + 168, buttonWidth, 20,
+                    customSoundMessage(player), button -> {
+                this.customSoundDropdownOpen = !this.customSoundDropdownOpen;
+                this.clearAndInit();
+            }));
+
+            this.addDrawableChild(new SwakozaButton(buttonX, buttonY + 192, buttonWidth, 20,
+                    hurtSoundOverlayMessage(player), button -> {
+                boolean overlay = !player.shouldOverlayHurtSounds();
+                if (player.updateHurtSoundOverlay(overlay)) {
+                    button.setMessage(hurtSoundOverlayMessage(player));
+                    PlayerConfig.saveGenderInfo(player);
+                }
+            }));
+
+            if (this.customSoundDropdownOpen) {
+                List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+                clampCustomSoundDropdownScroll(availableSounds);
+                int optionY = customSoundDropdownY();
+                int visibleSounds = customSoundDropdownVisibleCount(availableSounds);
+                for (int i = 0; i < visibleSounds; i++) {
+                    String fileName = availableSounds.get(this.customSoundDropdownScroll + i);
+                    this.addDrawableChild(new SwakozaButton(buttonX, optionY, buttonWidth, CUSTOM_SOUND_OPTION_HEIGHT,
+                            customSoundOptionMessage(player, fileName), button -> toggleCustomSound(player, fileName)));
+                    optionY += CUSTOM_SOUND_OPTION_HEIGHT;
+                }
+            }
+        }
+
         super.init();
+    }
+
+    private Text customSoundMessage(PlayerConfig player) {
+        List<String> customSounds = player.getCustomHurtSounds();
+        Text selected = customSounds.isEmpty()
+                ? Text.translatable("swakozas_puberty_mod.char_settings.custom_hurt_sound.not_selected").formatted(Formatting.RED)
+                : (customSounds.size() == 1
+                ? Text.literal(customSounds.getFirst())
+                : Text.translatable("swakozas_puberty_mod.char_settings.custom_hurt_sound.selected_count", customSounds.size())).formatted(Formatting.YELLOW);
+        return Text.translatable("swakozas_puberty_mod.char_settings.custom_hurt_sound", selected);
+    }
+
+    private Text hurtSoundOverlayMessage(PlayerConfig player) {
+        return Text.translatable("swakozas_puberty_mod.char_settings.hurt_sound_overlay", player.shouldOverlayHurtSounds() ? ENABLED : DISABLED);
+    }
+
+    private Text customSoundOptionMessage(PlayerConfig player, String fileName) {
+        boolean selected = player.getCustomHurtSounds().contains(fileName);
+        boolean supported = CustomHurtSoundManager.isSupportedOggVorbis(fileName);
+        Text message = Text.literal((selected ? "\u2611 " : "\u2610 ") + fileName);
+        return supported ? message : Text.literal("").append(message).append(Text.translatable("swakozas_puberty_mod.char_settings.custom_hurt_sound.not_vorbis").formatted(Formatting.RED));
+    }
+
+    private void toggleCustomSound(PlayerConfig player, String fileName) {
+        List<String> selectedSounds = new ArrayList<>(player.getCustomHurtSounds());
+        if (selectedSounds.contains(fileName)) {
+            selectedSounds.remove(fileName);
+        } else {
+            selectedSounds.add(fileName);
+        }
+        if (player.updateCustomHurtSounds(selectedSounds)) {
+            PlayerConfig.saveGenderInfo(player);
+            this.clearAndInit();
+        }
+    }
+
+    private void clampCustomSoundDropdownScroll(List<String> availableSounds) {
+        int maxScroll = Math.max(0, availableSounds.size() - CUSTOM_SOUND_DROPDOWN_VISIBLE_OPTIONS);
+        this.customSoundDropdownScroll = Math.max(0, Math.min(maxScroll, this.customSoundDropdownScroll));
+    }
+
+    private int customSoundDropdownVisibleCount(List<String> availableSounds) {
+        return Math.min(CUSTOM_SOUND_DROPDOWN_VISIBLE_OPTIONS, Math.max(0, availableSounds.size() - this.customSoundDropdownScroll));
+    }
+
+    private int customSoundDropdownX() {
+        return panelX() + 10;
+    }
+
+    private int customSoundDropdownY() {
+        return panelY() + 28 + 216;
+    }
+
+    private int customSoundDropdownWidth() {
+        return PANEL_WIDTH - 20;
+    }
+
+    private boolean isMouseOverCustomSoundDropdown(double mouseX, double mouseY) {
+        if (!this.customSoundDropdownOpen || !getPlayer().hasHurtSounds()) {
+            return false;
+        }
+        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        int dropdownHeight = customSoundDropdownVisibleCount(availableSounds) * CUSTOM_SOUND_OPTION_HEIGHT;
+        return dropdownHeight > 0
+                && mouseX >= customSoundDropdownX()
+                && mouseX < customSoundDropdownX() + customSoundDropdownWidth()
+                && mouseY >= customSoundDropdownY()
+                && mouseY < customSoundDropdownY() + dropdownHeight;
+    }
+
+    private boolean scrollCustomSoundDropdown(double mouseX, double mouseY, double verticalAmount) {
+        if (!isMouseOverCustomSoundDropdown(mouseX, mouseY)) {
+            return false;
+        }
+        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        int previousScroll = this.customSoundDropdownScroll;
+        this.customSoundDropdownScroll += verticalAmount < 0 ? 1 : -1;
+        clampCustomSoundDropdownScroll(availableSounds);
+        if (previousScroll != this.customSoundDropdownScroll) {
+            this.clearAndInit();
+        }
+        return true;
     }
 
     private int panelX() {
@@ -105,13 +239,27 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     }
 
     private int panelY() {
-        return this.height / 2 - PANEL_HEIGHT / 2;
+        return this.height / 2 - panelHeight() / 2;
+    }
+
+    private int panelHeight() {
+        if (!getPlayer().hasHurtSounds()) {
+            return PANEL_HEIGHT;
+        }
+        return PANEL_HEIGHT_WITH_CUSTOM_SOUND;
     }
 
     @Override
     public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
         SwakozaScreenStyle.drawOverlay(ctx, this.width, this.height);
-        SwakozaScreenStyle.drawHeaderPanel(ctx, this.textRenderer, this.title, panelX(), panelY(), PANEL_WIDTH, PANEL_HEIGHT);
+        SwakozaScreenStyle.drawHeaderPanel(ctx, this.textRenderer, this.title, panelX(), panelY(), PANEL_WIDTH, panelHeight());
+        if (this.customSoundDropdownOpen && getPlayer().hasHurtSounds()) {
+            List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+            int dropdownHeight = customSoundDropdownVisibleCount(availableSounds) * CUSTOM_SOUND_OPTION_HEIGHT;
+            if (dropdownHeight > 0) {
+                SwakozaScreenStyle.drawPanel(ctx, customSoundDropdownX(), customSoundDropdownY(), customSoundDropdownWidth(), dropdownHeight);
+            }
+        }
     }
 
     @Override
@@ -124,16 +272,23 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         if (entity != null) {
             SwakozaHelper.drawCenteredText(ctx, this.textRenderer, entity.getDisplayName(), this.width / 2, panelY() - 14, SwakozaScreenStyle.TEXT_PRIMARY);
         }
-
-        if (bounceWarning) {
-            SwakozaHelper.drawCenteredText(ctx, this.textRenderer, Text.translatable("swakozas_puberty_mod.tooltip.bounce_warning").formatted(Formatting.ITALIC), this.width / 2, panelY() + PANEL_HEIGHT + 8, 0xFFEF7B7B);
-        }
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.bounceSlider.save();
         this.floppySlider.save();
+        if (this.hurtSoundVolumeSlider != null) {
+            this.hurtSoundVolumeSlider.save();
+        }
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (scrollCustomSoundDropdown(mouseX, mouseY, verticalAmount)) {
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 }

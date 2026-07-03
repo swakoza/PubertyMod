@@ -3,7 +3,7 @@
   "id": "swakozas_puberty_mod",
   "version": "${version}",
   "name": "${mod_name}",
-  "description": "Adds configurable character gender and body appearance options.",
+  "description": "Adds configurable character gender, body appearance options, female hurt sounds, and per-player custom sound settings.",
   "authors": [
     "swakoza"
   ],
@@ -25,7 +25,7 @@
     "fabricloader": "*",
     "fabric-api": "*",
     "minecraft": "${minecraft_dependency}",
-    "java": ">=21"
+    "java": "${java_dependency}"
   },
   "conflicts": {
     "skinlayers": "*",

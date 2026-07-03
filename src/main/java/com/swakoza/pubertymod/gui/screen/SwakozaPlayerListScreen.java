@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.LivingEntity;
@@ -50,12 +51,14 @@ public class SwakozaPlayerListScreen extends Screen {
     private static final int PANEL_HEIGHT = 178;
     private static final int PANEL_GAP = 10;
     private static final int LIST_HEADER_HEIGHT = 24;
+    private static boolean nearbyOnly;
 
     private @Nullable Text tooltip;
     private @Nullable PlayerConfig hoveredPlayer;
     private @Nullable PlayerListEntry hoveredEntry;
     private SwakozaPlayerList playerList;
     private TextFieldWidget searchField;
+    private SwakozaButton nearbyToggleButton;
     private final Map<UUID, SwakozaPreviewPlayerEntity> previewPlayers = new HashMap<>();
     private int listRefreshTicks;
     private int creatorCheckTicks;
@@ -81,7 +84,7 @@ public class SwakozaPlayerListScreen extends Screen {
         this.addDrawableChild(new SwakozaButton(detailsPanelX() + DETAILS_WIDTH - 14, detailsPanelY() + 4, 10, 10, Text.literal("X"),
                 button -> MinecraftClient.getInstance().setScreen(null)));
 
-        this.searchField = this.addDrawableChild(new TextFieldWidget(this.textRenderer, listPanelX() + 14, listPanelY() + 7, LIST_WIDTH - 48, 10,
+        this.searchField = this.addDrawableChild(new TextFieldWidget(this.textRenderer, listPanelX() + 14, listPanelY() + 7, LIST_WIDTH - 72, 10,
                 Text.translatable("swakozas_puberty_mod.player_list.search")));
         this.searchField.setDrawsBackground(false);
         this.searchField.setEditableColor(SwakozaScreenStyle.TEXT_PRIMARY);
@@ -97,7 +100,18 @@ public class SwakozaPlayerListScreen extends Screen {
         this.playerList = new SwakozaPlayerList(this, listContentWidth, listContentY, listContentY + listContentHeight);
         this.playerList.setPosition(listContentX, listContentY);
         this.playerList.setFilter(this.searchField.getText());
+        this.playerList.setNearbyOnly(nearbyOnly);
         this.addDrawableChild(this.playerList);
+
+        this.nearbyToggleButton = this.addDrawableChild(new SwakozaButton(listPanelX() + LIST_WIDTH - 24, listPanelY() + 5, 14, 14, Text.empty(), button -> {
+            nearbyOnly = !nearbyOnly;
+            if (this.playerList != null) {
+                this.playerList.setNearbyOnly(nearbyOnly);
+                this.playerList.refreshList();
+            }
+        }, Tooltip.of(Text.translatable("swakozas_puberty_mod.tooltip.nearby_players"))));
+        this.nearbyToggleButton.setTransparent(true);
+
         updatePlayerListSize();
         updateCreatorPresence();
 
@@ -142,8 +156,11 @@ public class SwakozaPlayerListScreen extends Screen {
         SwakozaScreenStyle.drawPanel(ctx, previewPanelX(), previewPanelY(), PREVIEW_WIDTH, PANEL_HEIGHT);
         SwakozaScreenStyle.drawPanel(ctx, listPanelX(), listPanelY(), LIST_WIDTH, PANEL_HEIGHT);
         SwakozaScreenStyle.drawHeaderStrip(ctx, listPanelX(), listPanelY(), LIST_WIDTH, LIST_HEADER_HEIGHT);
-        SwakozaScreenStyle.drawInsetField(ctx, listPanelX() + 10, listPanelY() + 5, LIST_WIDTH - 34, 14, this.searchField != null && this.searchField.isFocused());
-        SwakozaScreenStyle.drawSearchIcon(ctx, listPanelX() + LIST_WIDTH - 20, listPanelY() + 6, SwakozaScreenStyle.TEXT_MUTED, SwakozaScreenStyle.ACCENT);
+        SwakozaScreenStyle.drawInsetField(ctx, listPanelX() + 10, listPanelY() + 5, LIST_WIDTH - 48, 14, this.searchField != null && this.searchField.isFocused());
+        SwakozaScreenStyle.drawInsetField(ctx, listPanelX() + LIST_WIDTH - 24, listPanelY() + 5, 14, 14, nearbyOnly);
+        if (nearbyOnly) {
+            SwakozaHelper.drawCenteredText(ctx, this.textRenderer, Text.literal("\u2714"), listPanelX() + LIST_WIDTH - 17, listPanelY() + 8, SwakozaScreenStyle.TEXT_PRIMARY);
+        }
         SwakozaScreenStyle.drawHeaderPanel(ctx, this.textRenderer, Text.translatable("swakozas_puberty_mod.player_list.details"), detailsPanelX(), detailsPanelY(), DETAILS_WIDTH, PANEL_HEIGHT);
     }
 
@@ -151,13 +168,11 @@ public class SwakozaPlayerListScreen extends Screen {
     public void tick() {
         super.tick();
 
-        if (this.playerList != null && ++this.listRefreshTicks >= 20) {
+        if (this.playerList != null && ++this.listRefreshTicks >= 10) {
             this.listRefreshTicks = 0;
             int playerListSize = getPlayerListSize();
-            if (playerListSize != this.lastPlayerListSize) {
-                this.lastPlayerListSize = playerListSize;
-                this.playerList.refreshList();
-            }
+            this.lastPlayerListSize = playerListSize;
+            this.playerList.refreshList();
         }
 
         if (this.client != null && this.client.player != null && ++this.creatorCheckTicks >= 40) {

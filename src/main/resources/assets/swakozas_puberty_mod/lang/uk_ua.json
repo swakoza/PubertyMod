@@ -1,8 +1,15 @@
 {
-  "category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+  "category.swakozas_puberty_mod.generic": "Puberty-Mod",
+  "key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
+  "key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
   "key.swakozas_puberty_mod.gender_menu": "Меню жіночої статі",
+  "key.swakozas_puberty_mod.target_player_menu": "Налаштувати гравця",
+  "toast.swakozas_puberty_mod.get_started": "Натисніть '%s', щоб почати!",
+  "modmenu.descriptionTranslation.swakozas_puberty_mod": "Додає налаштовувану стать персонажа, параметри зовнішності, жіночі звуки поранення та індивідуальні кастомні звуки для гравців.",
+  "modmenu.summaryTranslation.swakozas_puberty_mod": "Налаштування статі, зовнішності та кастомних жіночих звуків поранення.",
 
-  "swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+  "swakozas_puberty_mod.player_list.title": "Puberty-Mod",
+  "swakozas_puberty_mod.player_list.search": "Пошук за ніком",
   "swakozas_puberty_mod.player_list.settings_button": "Налаштування",
   "swakozas_puberty_mod.player_list.sync_status": "Синхронізація стану",
   "swakozas_puberty_mod.player_list.state.loading": "Завантаження даних...",
@@ -10,8 +17,19 @@
   "swakozas_puberty_mod.player_list.bounce_multiplier": "Множник пружності: %sx",
   "swakozas_puberty_mod.player_list.breast_momentum": "Імпульс грудей: %s%%",
   "swakozas_puberty_mod.player_list.female_sounds": "Жіночі звуки: %s",
+  "swakozas_puberty_mod.player_list.details": "Інформація",
+  "swakozas_puberty_mod.player_list.hover_preview": "Наведіть на гравця",
+  "swakozas_puberty_mod.player_list.hover_details": "Наведіть на рядок гравця",
+  "swakozas_puberty_mod.tooltip.nearby_players": "Відображення гравців поруч",
 
-  "swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+  "swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
+  "swakozas_puberty_mod.breast_customization.tab_customization": "Налаштування",
+  "swakozas_puberty_mod.breast_customization.tab_presets": "Пресети",
+
+  "swakozas_puberty_mod.breast_customization.presets.add_new": "Додати...",
+  "swakozas_puberty_mod.breast_customization.presets.delete": "Видалити",
+  "swakozas_puberty_mod.breast_customization.presets.empty": "Пресети не знайдено",
+
   "swakozas_puberty_mod.wardrobe.slider.breast_size": "Розмір грудей: %s%%",
   "swakozas_puberty_mod.wardrobe.slider.separation": "Відстань: %s",
   "swakozas_puberty_mod.wardrobe.slider.height": "Висота: %s",
@@ -21,9 +39,18 @@
   "swakozas_puberty_mod.appearance_settings.title": "Параметри зовнішнього вигляду",
   "swakozas_puberty_mod.char_settings.title": "Параметри персонажа",
   "swakozas_puberty_mod.char_settings.physics": "Фізика грудей: %s",
+  "swakozas_puberty_mod.char_settings.override_armor_physics": "Фізика броні: %s",
+  "swakozas_puberty_mod.tooltip.override_armor_physics.line1": "Коли увімкнено, броня більше не зменшуватиме і не приглушуватиме фізику грудей",
+  "swakozas_puberty_mod.tooltip.override_armor_physics.line2": "Корисно для ресурс-паків, які приховують броню, або схожих мінімалістичних наборів броні",
   "swakozas_puberty_mod.char_settings.hide_in_armor": "Приховувати під бронею: %s",
   "swakozas_puberty_mod.char_settings.hurt_sounds": "Жіночі звуки поранення: %s",
   "swakozas_puberty_mod.tooltip.hurt_sounds": "Вмикає жіночі звуки поранення",
+  "swakozas_puberty_mod.char_settings.hurt_sound_volume": "Гучність жіночих звуків: %s%%",
+  "swakozas_puberty_mod.char_settings.custom_hurt_sound": "Кастомний звук: %s",
+  "swakozas_puberty_mod.char_settings.custom_hurt_sound.not_selected": "Не вибрано",
+  "swakozas_puberty_mod.char_settings.custom_hurt_sound.selected_count": "%s вибрано",
+  "swakozas_puberty_mod.char_settings.custom_hurt_sound.not_vorbis": " (не Vorbis)",
+  "swakozas_puberty_mod.char_settings.hurt_sound_overlay": "Накладання звуків: %s",
 
   "swakozas_puberty_mod.breast_customization.dual_physics": "Подвійна фізика %s",
 
@@ -44,5 +71,6 @@
   "swakozas_puberty_mod.slider.max_bounce": "Аніме фізика грудей!!!",
   "swakozas_puberty_mod.tooltip.bounce_warning": "Встановлення «Інтенсивності пружності» на високе значення виглядатиме дуже неприродно!",
 
-  "swakozas_puberty_mod.cancer_awareness.title": "Привіт, сьогодні Місяць боротьби з раком молочної залози!"
+  "swakozas_puberty_mod.cancer_awareness.title": "Привіт, сьогодні Місяць боротьби з раком молочної залози!",
+  "swakozas_puberty_mod.coming_soon": "Незабаром"
 }

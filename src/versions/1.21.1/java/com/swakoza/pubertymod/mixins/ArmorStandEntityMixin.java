@@ -34,7 +34,10 @@ public abstract class ArmorStandEntityMixin {
 
         PlayerConfig playerConfig = SwakozaPubertyMod.getPlayerById(player.getUuid());
         if (playerConfig == null) {
-            NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, customData -> customData.remove("SwakozaPubertyMod"));
+            NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, customData -> {
+                customData.remove("pubertymod");
+                customData.remove("SwakozaPubertyMod");
+            });
             return;
         }
 

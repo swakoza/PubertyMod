@@ -1,25 +1,67 @@
-plugins {
-	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
-	id 'maven-publish'
+buildscript {
+	def requestedMinecraftVersion = gradle.startParameter.projectProperties.get("targetMinecraftVersion")
+			?: gradle.startParameter.projectProperties.get("minecraft_version")
+			?: project.findProperty("minecraft_version")
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath "net.fabricmc:fabric-loom:${requestedMinecraftVersion.toString().startsWith("26.") ? "1.17-SNAPSHOT" : project.loom_version}"
+	}
 }
 
-version = project.mod_version
+def targetMinecraftVersion = (findProperty("targetMinecraftVersion") ?: project.minecraft_version).toString()
+def versionConfigs = [
+		"1.21.1" : [yarn: "1.21.1+build.3", fabricApi: "0.116.11+1.21.1", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.1"],
+		"1.21.4" : [yarn: "1.21.4+build.8", fabricApi: "0.119.4+1.21.4", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.4"],
+		"1.21.6" : [yarn: "1.21.6+build.1", fabricApi: "0.128.2+1.21.6", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.6"],
+		"1.21.10": [yarn: "1.21.10+build.2", fabricApi: "0.138.4+1.21.10", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.10"],
+		"1.21.11": [yarn: "1.21.11+build.5", fabricApi: "0.141.3+1.21.11", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.11"],
+		"26.1"   : [fabricApi: "0.149.1+26.1.2", loader: "0.19.3", java: 25, minecraftDependency: "~26.1"],
+		"26.1.2" : [fabricApi: "0.149.1+26.1.2", loader: "0.19.3", java: 25, minecraftDependency: "~26.1"]
+]
+def versionConfig = versionConfigs[targetMinecraftVersion]
+if (versionConfig == null) {
+	throw new GradleException("Unsupported Minecraft target '${targetMinecraftVersion}'. Supported: ${versionConfigs.keySet().join(', ')}")
+}
+
+def modernMinecraft = targetMinecraftVersion.startsWith("26.")
+def effectiveModVersion = (findProperty("mod_version") ?: "1.1-beta").toString()
+def effectiveArchiveBaseName = "${project.archives_base_name}-fabric-${targetMinecraftVersion}"
+def effectiveMinecraftDependency = versionConfig.minecraftDependency
+def effectiveFabricApiVersion = versionConfig.fabricApi
+def effectiveLoaderVersion = versionConfig.loader
+def effectiveJavaVersion = versionConfig.java
+
+apply plugin: modernMinecraft ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
+apply plugin: 'maven-publish'
+
+version = effectiveModVersion
 group = project.maven_group
 
 base {
-	archivesName = project.archives_base_name
+	archivesName = effectiveArchiveBaseName
+}
+
+if (modernMinecraft) {
+	sourceSets.main.java.setSrcDirs(["src/versions/26.1/java"])
 }
 
 def versionSpecificJavaSources = []
 def excludedMainJava = []
 
-if (project.minecraft_version == "1.21.10") {
+if (targetMinecraftVersion == "1.21.10") {
 	excludedMainJava += [
 			"com/swakoza/pubertymod/render/RenderLayerCompat.java"
 	]
 }
 
-if (project.minecraft_version == "1.21.6" || project.minecraft_version == "1.21.4") {
+if (targetMinecraftVersion == "1.21.6" || targetMinecraftVersion == "1.21.4") {
 	excludedMainJava += [
 			"com/swakoza/pubertymod/gui/SwakozaButton.java",
 			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
@@ -33,7 +75,7 @@ if (project.minecraft_version == "1.21.6" || project.minecraft_version == "1.21.
 	]
 }
 
-if (project.minecraft_version == "1.21.1") {
+if (targetMinecraftVersion == "1.21.1") {
 	excludedMainJava += [
 			"com/swakoza/pubertymod/compat/ArmorTrimCompat.java",
 			"com/swakoza/pubertymod/gui/SwakozaButton.java",
@@ -56,24 +98,24 @@ if (project.minecraft_version == "1.21.1") {
 	]
 }
 
-if (project.minecraft_version == "1.21.6") {
+if (targetMinecraftVersion == "1.21.6") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java")
 }
 
-if (project.minecraft_version == "1.21.10") {
+if (targetMinecraftVersion == "1.21.10") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
 		include "com/swakoza/pubertymod/render/RenderLayerCompat.java"
 	}
 }
 
-if (project.minecraft_version == "1.21.4") {
+if (targetMinecraftVersion == "1.21.4") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
 	}
 	versionSpecificJavaSources += fileTree("src/versions/1.21.4/java")
 }
 
-if (project.minecraft_version == "1.21.1") {
+if (targetMinecraftVersion == "1.21.1") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
 		exclude "com/swakoza/pubertymod/gui/SwakozaButton.java"
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
@@ -87,23 +129,29 @@ if (project.minecraft_version == "1.21.1") {
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	minecraft "com.mojang:minecraft:${targetMinecraftVersion}"
+	if (!modernMinecraft) {
+		mappings "net.fabricmc:yarn:${versionConfig.yarn}:v2"
+		modImplementation "net.fabricmc:fabric-loader:${effectiveLoaderVersion}"
+		modImplementation "net.fabricmc.fabric-api:fabric-api:${effectiveFabricApiVersion}"
+	} else {
+		implementation "net.fabricmc:fabric-loader:${effectiveLoaderVersion}"
+		implementation "net.fabricmc.fabric-api:fabric-api:${effectiveFabricApiVersion}"
+	}
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
 
 processResources {
 	inputs.property "version", project.version
 	inputs.property "mod_name", project.mod_name
-	inputs.property "minecraft_dependency", project.minecraft_dependency
+	inputs.property "minecraft_dependency", effectiveMinecraftDependency
+	inputs.property "java_dependency", ">=${effectiveJavaVersion}"
 
 	filesMatching("fabric.mod.json") {
 		expand inputs.properties
 	}
 
-	if (project.minecraft_version == "1.21.1") {
+	if (targetMinecraftVersion == "1.21.1") {
 		from("src/versions/1.21.1/resources")
 		eachFile { details ->
 			if (details.path == "swakozas_puberty_mod.mixins.json"
@@ -115,11 +163,13 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = effectiveJavaVersion
 }
 
 tasks.named("compileJava", JavaCompile).configure {
-	if (!versionSpecificJavaSources.isEmpty()) {
+	if (modernMinecraft) {
+		it.source = fileTree("src/versions/26.1/java")
+	} else if (!versionSpecificJavaSources.isEmpty()) {
 		it.source = files(fileTree("src/main/java") {
 			exclude excludedMainJava
 		}, versionSpecificJavaSources)
@@ -129,13 +179,56 @@ tasks.named("compileJava", JavaCompile).configure {
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.toVersion(effectiveJavaVersion)
+	targetCompatibility = JavaVersion.toVersion(effectiveJavaVersion)
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archives_base_name}" }
+		rename { "${it}_${effectiveArchiveBaseName}" }
+	}
+}
+
+def distributionJarTask = tasks.findByName("remapJar") != null ? tasks.named("remapJar") : tasks.named("jar")
+tasks.register("copyVersionedJar", Copy) {
+	dependsOn distributionJarTask
+	from(distributionJarTask.flatMap { it.archiveFile })
+	into(layout.projectDirectory.dir("dist/${targetMinecraftVersion}"))
+}
+
+def versionBuildTaskNames = []
+versionConfigs.keySet().each { mcVersion ->
+	String taskSuffix = mcVersion.replace(".", "")
+	def taskName = "buildMinecraft${taskSuffix}"
+	versionBuildTaskNames += taskName
+	tasks.register(taskName, Exec) {
+		group = "build"
+		description = "Builds the mod for Minecraft ${mcVersion} and copies the jar to dist/${mcVersion}."
+		String gradlew = System.getProperty("os.name").toLowerCase().contains("windows") ? "gradlew.bat" : "gradlew"
+		commandLine file(gradlew).absolutePath, "clean", "build", "copyVersionedJar", "-PtargetMinecraftVersion=${mcVersion}", "--no-daemon"
+	}
+}
+
+versionBuildTaskNames.eachWithIndex { taskName, index ->
+	if (index > 0) {
+		tasks.named(taskName).configure {
+			mustRunAfter tasks.named(versionBuildTaskNames[index - 1])
+		}
+	}
+}
+
+tasks.register("buildAllVersions") {
+	group = "build"
+	description = "Builds all configured Minecraft versions."
+	dependsOn versionBuildTaskNames
+}
+
+tasks.register("printVersionMatrix") {
+	group = "help"
+	doLast {
+		versionConfigs.each { mcVersion, cfg ->
+			println "${mcVersion}: fabric-api=${cfg.fabricApi}, loader=${cfg.loader}, java=${cfg.java}, yarn=${cfg.yarn ?: 'official-mojang'}"
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@ import com.swakoza.pubertymod.main.Gender;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -39,7 +41,11 @@ public class PlayerConfig extends EntityConfig {
 
 	private final Configuration cfg;
 	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
+	private List<String> customHurtSounds = new ArrayList<>(Configuration.CUSTOM_HURT_SOUNDS.getDefault());
+	private float hurtSoundVolume = Configuration.HURT_SOUND_VOLUME.getDefault();
+	private boolean hurtSoundOverlay = Configuration.HURT_SOUND_OVERLAY.getDefault();
 	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
+	private boolean localConfigPresent;
 
 	public PlayerConfig(UUID uuid) {
 		this(uuid, Configuration.GENDER.getDefault());
@@ -48,11 +54,14 @@ public class PlayerConfig extends EntityConfig {
 	public PlayerConfig(UUID uuid, Gender gender) {
 		super(uuid);
 		this.gender = gender;
-		this.cfg = new Configuration("SwakozaPubertyMod", this.uuid.toString());
+		this.cfg = new Configuration("pubertymod", this.uuid.toString(), "SwakozaPubertyMod");
 		this.cfg.set(Configuration.USERNAME, this.uuid);
-		this.cfg.setDefault(Configuration.GENDER);
+		this.cfg.set(Configuration.GENDER, gender);
 		this.cfg.setDefault(Configuration.BUST_SIZE);
 		this.cfg.setDefault(Configuration.HURT_SOUNDS);
+		this.cfg.setDefault(Configuration.CUSTOM_HURT_SOUNDS);
+		this.cfg.setDefault(Configuration.HURT_SOUND_VOLUME);
+		this.cfg.setDefault(Configuration.HURT_SOUND_OVERLAY);
 
 		this.cfg.setDefault(Configuration.BREASTS_OFFSET_X);
 		this.cfg.setDefault(Configuration.BREASTS_OFFSET_Y);
@@ -66,6 +75,8 @@ public class PlayerConfig extends EntityConfig {
 		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
 		this.cfg.finish();
+		this.localConfigPresent = this.cfg.wasLoadedFromFile();
+		applyConfigValues(false, this.localConfigPresent);
 	}
 
 	// this shouldn't ever be called on players, but just to be safe, override with a noop.
@@ -100,6 +111,34 @@ public class PlayerConfig extends EntityConfig {
 		return updateValue(Configuration.HURT_SOUNDS, value, v -> this.hurtSounds = v);
 	}
 
+	public List<String> getCustomHurtSounds() {
+		return List.copyOf(customHurtSounds);
+	}
+
+	public boolean updateCustomHurtSounds(List<String> value) {
+		List<String> next = value == null ? List.of() : value.stream()
+				.filter(item -> item != null && !item.isBlank())
+				.distinct()
+				.toList();
+		return updateValue(Configuration.CUSTOM_HURT_SOUNDS, next, v -> this.customHurtSounds = new ArrayList<>(v));
+	}
+
+	public float getHurtSoundVolume() {
+		return hurtSoundVolume;
+	}
+
+	public boolean updateHurtSoundVolume(float value) {
+		return updateValue(Configuration.HURT_SOUND_VOLUME, value, v -> this.hurtSoundVolume = v);
+	}
+
+	public boolean shouldOverlayHurtSounds() {
+		return hurtSoundOverlay;
+	}
+
+	public boolean updateHurtSoundOverlay(boolean value) {
+		return updateValue(Configuration.HURT_SOUND_OVERLAY, value, v -> this.hurtSoundOverlay = v);
+	}
+
 	public boolean updateBreastPhysics(boolean value) {
 		return updateValue(Configuration.BREAST_PHYSICS, value, v -> this.breastPhysics = v);
 	}
@@ -132,12 +171,19 @@ public class PlayerConfig extends EntityConfig {
 		return this.syncStatus;
 	}
 
+	public boolean hasLocalConfig() {
+		return this.localConfigPresent;
+	}
+
 	public static JsonObject toJsonObject(PlayerConfig plr) {
 		JsonObject obj = new JsonObject();
 		Configuration.USERNAME.save(obj, plr.uuid);
 		Configuration.GENDER.save(obj, plr.getGender());
 		Configuration.BUST_SIZE.save(obj, plr.getBustSize());
 		Configuration.HURT_SOUNDS.save(obj, plr.hasHurtSounds());
+		Configuration.CUSTOM_HURT_SOUNDS.save(obj, plr.getCustomHurtSounds());
+		Configuration.HURT_SOUND_VOLUME.save(obj, plr.getHurtSoundVolume());
+		Configuration.HURT_SOUND_OVERLAY.save(obj, plr.shouldOverlayHurtSounds());
 
 		Configuration.BREAST_PHYSICS.save(obj, plr.hasBreastPhysics());
 		Configuration.SHOW_IN_ARMOR.save(obj, plr.showBreastsInArmor());
@@ -157,31 +203,39 @@ public class PlayerConfig extends EntityConfig {
 	public static PlayerConfig loadCachedPlayer(UUID uuid, boolean markForSync) {
 		PlayerConfig plr = SwakozaPubertyMod.getPlayerById(uuid);
 		if (plr != null) {
-			plr.syncStatus = SyncStatus.CACHED;
-			Configuration config = plr.getConfig();
-			plr.updateGender(config.get(Configuration.GENDER));
-			plr.updateBustSize(config.get(Configuration.BUST_SIZE));
-			plr.updateHurtSounds(config.get(Configuration.HURT_SOUNDS));
-
-			//physics
-			plr.updateBreastPhysics(config.get(Configuration.BREAST_PHYSICS));
-			plr.updateShowBreastsInArmor(config.get(Configuration.SHOW_IN_ARMOR));
-			plr.updateArmorPhysicsOverride(config.get(Configuration.ARMOR_PHYSICS_OVERRIDE));
-			plr.updateBounceMultiplier(config.get(Configuration.BOUNCE_MULTIPLIER));
-			plr.updateFloppiness(config.get(Configuration.FLOPPY_MULTIPLIER));
-
-			Breasts breasts = plr.getBreasts();
-			breasts.updateXOffset(config.get(Configuration.BREASTS_OFFSET_X));
-			breasts.updateYOffset(config.get(Configuration.BREASTS_OFFSET_Y));
-			breasts.updateZOffset(config.get(Configuration.BREASTS_OFFSET_Z));
-			breasts.updateUniboob(config.get(Configuration.BREASTS_UNIBOOB));
-			breasts.updateCleavage(config.get(Configuration.BREASTS_CLEAVAGE));
-			if (markForSync) {
-				plr.needsSync = true;
-			}
+			plr.applyConfigValues(markForSync, true);
 			return plr;
 		}
 		return null;
+	}
+
+	private void applyConfigValues(boolean markForSync, boolean markAsCached) {
+		if (markAsCached) {
+			this.syncStatus = SyncStatus.CACHED;
+		}
+		Configuration config = getConfig();
+		updateGender(config.get(Configuration.GENDER));
+		updateBustSize(config.get(Configuration.BUST_SIZE));
+		updateHurtSounds(config.get(Configuration.HURT_SOUNDS));
+		updateCustomHurtSounds(config.get(Configuration.CUSTOM_HURT_SOUNDS));
+		updateHurtSoundVolume(config.get(Configuration.HURT_SOUND_VOLUME));
+		updateHurtSoundOverlay(config.get(Configuration.HURT_SOUND_OVERLAY));
+
+		updateBreastPhysics(config.get(Configuration.BREAST_PHYSICS));
+		updateShowBreastsInArmor(config.get(Configuration.SHOW_IN_ARMOR));
+		updateArmorPhysicsOverride(config.get(Configuration.ARMOR_PHYSICS_OVERRIDE));
+		updateBounceMultiplier(config.get(Configuration.BOUNCE_MULTIPLIER));
+		updateFloppiness(config.get(Configuration.FLOPPY_MULTIPLIER));
+
+		Breasts breasts = getBreasts();
+		breasts.updateXOffset(config.get(Configuration.BREASTS_OFFSET_X));
+		breasts.updateYOffset(config.get(Configuration.BREASTS_OFFSET_Y));
+		breasts.updateZOffset(config.get(Configuration.BREASTS_OFFSET_Z));
+		breasts.updateUniboob(config.get(Configuration.BREASTS_UNIBOOB));
+		breasts.updateCleavage(config.get(Configuration.BREASTS_CLEAVAGE));
+		if (markForSync) {
+			this.needsSync = true;
+		}
 	}
 
 	public static void saveGenderInfo(PlayerConfig plr) {
@@ -190,6 +244,9 @@ public class PlayerConfig extends EntityConfig {
 		config.set(Configuration.GENDER, plr.getGender());
 		config.set(Configuration.BUST_SIZE, plr.getBustSize());
 		config.set(Configuration.HURT_SOUNDS, plr.hasHurtSounds());
+		config.set(Configuration.CUSTOM_HURT_SOUNDS, plr.getCustomHurtSounds());
+		config.set(Configuration.HURT_SOUND_VOLUME, plr.getHurtSoundVolume());
+		config.set(Configuration.HURT_SOUND_OVERLAY, plr.shouldOverlayHurtSounds());
 
 		//physics
 		config.set(Configuration.BREAST_PHYSICS, plr.hasBreastPhysics());
@@ -205,6 +262,8 @@ public class PlayerConfig extends EntityConfig {
 		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
 
 		config.save();
+		plr.localConfigPresent = true;
+		plr.syncStatus = SyncStatus.CACHED;
 		plr.needsSync = true;
 	}
 

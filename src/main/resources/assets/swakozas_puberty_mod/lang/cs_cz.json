@@ -1,8 +1,10 @@
 {
-	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Menu ženského pohlaví",
 
-	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
 	"swakozas_puberty_mod.player_list.settings_button": "Nastavení",
 	"swakozas_puberty_mod.player_list.sync_status": "Status synchronizace",
 	"swakozas_puberty_mod.player_list.state.loading": "Načítaní dat...",
@@ -11,7 +13,7 @@
 	"swakozas_puberty_mod.player_list.breast_momentum": "Hybnost: %s%%",
 	"swakozas_puberty_mod.player_list.female_sounds": "Ženské zvuky: %s",
 
-	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
 	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Velikost: %s%%",
 	"swakozas_puberty_mod.wardrobe.slider.separation": "Mezera: %s",
 	"swakozas_puberty_mod.wardrobe.slider.height": "Výška: %s",

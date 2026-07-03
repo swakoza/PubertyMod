@@ -94,6 +94,6 @@ public class SwakozaHelper {
         nbt.putFloat("YOffset", config.getBreasts().getYOffset());
         nbt.putFloat("ZOffset", config.getBreasts().getZOffset());
         nbt.putBoolean("Jacket", PlayerCompat.isModelPartVisible(player, PlayerModelPart.JACKET));
-        NbtComponent.set(DataComponentTypes.CUSTOM_DATA, armor, customData -> customData.put("SwakozaPubertyMod", nbt));
+        NbtComponent.set(DataComponentTypes.CUSTOM_DATA, armor, customData -> customData.put("pubertymod", nbt));
     }
 }

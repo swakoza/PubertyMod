@@ -22,6 +22,7 @@ import net.minecraft.world.GameMode;
 
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.UUID;
 
 public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> {
     private static final Comparator<PlayerListEntry> ENTRY_ORDERING = Comparator
@@ -35,6 +36,7 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
     private final int listWidth;
     private final SwakozaPlayerListScreen parent;
     private String filter = "";
+    private boolean nearbyOnly;
 
     public SwakozaPlayerList(SwakozaPlayerListScreen parent, int listWidth, int top, int bottom) {
         super(MinecraftClient.getInstance(), listWidth, bottom - top, top, 20);
@@ -66,19 +68,55 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
         this.filter = filter == null ? "" : filter.trim().toLowerCase(Locale.ROOT);
     }
 
+    public void setNearbyOnly(boolean nearbyOnly) {
+        this.nearbyOnly = nearbyOnly;
+    }
+
     public void refreshList() {
         this.clearEntries();
         if (this.client == null || this.client.player == null) return;
 
         ClientPlayNetworkHandler networkHandler = this.client.player.networkHandler;
         networkHandler.getPlayerList().stream()
-                .sorted(ENTRY_ORDERING)
+                .sorted(this.entryOrdering())
                 .filter(this::matchesFilter)
+                .filter(this::matchesNearby)
                 .forEach(playerList -> addEntry(new Entry(playerList)));
     }
 
     private boolean matchesFilter(PlayerListEntry entry) {
         return this.filter.isBlank() || GameProfileCompat.name(entry.getProfile()).toLowerCase(Locale.ROOT).contains(this.filter);
+    }
+
+    private Comparator<PlayerListEntry> entryOrdering() {
+        if (!this.nearbyOnly) {
+            return ENTRY_ORDERING;
+        }
+        return Comparator.comparingDouble(this::distanceToLocalPlayer).thenComparing(ENTRY_ORDERING);
+    }
+
+    private double distanceToLocalPlayer(PlayerListEntry entry) {
+        if (this.client == null || this.client.player == null || this.client.world == null) {
+            return Double.MAX_VALUE;
+        }
+
+        UUID uuid = GameProfileCompat.id(entry.getProfile());
+        return this.client.world.getPlayers().stream()
+                .filter(player -> uuid.equals(player.getUuid()))
+                .mapToDouble(player -> player.squaredDistanceTo(this.client.player))
+                .findFirst()
+                .orElse(Double.MAX_VALUE);
+    }
+
+    private boolean matchesNearby(PlayerListEntry entry) {
+        if (!this.nearbyOnly) {
+            return true;
+        }
+        if (this.client == null || this.client.player == null || this.client.world == null) {
+            return false;
+        }
+
+        return distanceToLocalPlayer(entry) <= 10000.0D;
     }
 
     @Override

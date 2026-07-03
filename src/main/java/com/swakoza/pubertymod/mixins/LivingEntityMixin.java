@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@ package com.swakoza.pubertymod.mixins;
 
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
 import com.swakoza.pubertymod.compat.EntityCompat;
+import com.swakoza.pubertymod.main.CustomHurtSoundManager;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -67,7 +68,7 @@ public abstract class LivingEntityMixin {
 		if(client.player == null || client.world == null) return;
 
 		if((LivingEntity)(Object)this instanceof PlayerEntity player) {
-			if(EntityCompat.getWorld(player).isClient() && player.getUuid().equals(client.player.getUuid())) {
+			if(EntityCompat.getWorld(player).isClient()) {
 				this.playGenderHurtSound(player);
 			}
 		}
@@ -93,8 +94,11 @@ public abstract class LivingEntityMixin {
 
 		SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();
 		if(hurtSound != null) {
+			if(EntityCompat.getWorld(player).isClient() && CustomHurtSoundManager.playRandom(player.getUuid(), genderPlayer.getCustomHurtSounds(), genderPlayer.getHurtSoundVolume(), genderPlayer.shouldOverlayHurtSounds())) {
+				return;
+			}
 			float pitch = (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F;
-			player.playSound(hurtSound, 1f, pitch);
+			player.playSound(hurtSound, genderPlayer.getHurtSoundVolume(), pitch);
 		}
 	}
 }

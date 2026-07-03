@@ -1,5 +1,5 @@
 /*
-    Swakoza's Puberty Mod is a female gender mod created for Minecraft.
+    Puberty-Mod is a female gender mod created for Minecraft.
     Copyright (C) 2023 swakoza
 
     This program is free software; you can redistribute it and/or
@@ -79,7 +79,9 @@ public class EntityConfig {
 		NbtCompound nbt = null;
 		if(!chestplate.isEmpty()) {
 			NbtCompound customData = chestplate.getOrDefault(net.minecraft.component.DataComponentTypes.CUSTOM_DATA, net.minecraft.component.type.NbtComponent.DEFAULT).copyNbt();
-			if(customData.contains("SwakozaPubertyMod")) {
+			if(customData.contains("pubertymod")) {
+				nbt = NbtCompat.getCompound(customData, "pubertymod");
+			} else if(customData.contains("SwakozaPubertyMod")) {
 				nbt = NbtCompat.getCompound(customData, "SwakozaPubertyMod");
 			}
 		}

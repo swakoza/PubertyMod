@@ -1,9 +1,14 @@
 {
-	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Меню пола",
+	"key.swakozas_puberty_mod.target_player_menu": "Настроить игрока",
 	"toast.swakozas_puberty_mod.get_started": "Нажмите '%s', чтобы начать!",
+	"modmenu.descriptionTranslation.swakozas_puberty_mod": "Добавляет настраиваемый пол персонажа, параметры внешности, женские звуки урона и индивидуальные кастомные звуки для игроков.",
+	"modmenu.summaryTranslation.swakozas_puberty_mod": "Настройка пола, внешности и кастомных женских звуков урона.",
 
-	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
 	"swakozas_puberty_mod.player_list.search": "Поиск по нику",
 	"swakozas_puberty_mod.player_list.settings_button": "Настройки",
 	"swakozas_puberty_mod.player_list.sync_status": "Статус синхронизации",
@@ -15,8 +20,9 @@
 	"swakozas_puberty_mod.player_list.details": "Информация",
 	"swakozas_puberty_mod.player_list.hover_preview": "Наведите на игрока",
 	"swakozas_puberty_mod.player_list.hover_details": "Наведите на игрока",
+	"swakozas_puberty_mod.tooltip.nearby_players": "Отображение игроков рядом",
 
-	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
 	"swakozas_puberty_mod.breast_customization.tab_customization": "Настройка",
 	"swakozas_puberty_mod.breast_customization.tab_presets": "Пресеты",
 
@@ -41,6 +47,12 @@
 	"swakozas_puberty_mod.char_settings.hide_in_armor": "Скрывать в броне: %s",
 	"swakozas_puberty_mod.char_settings.hurt_sounds": "Женские звуки урона: %s",
 	"swakozas_puberty_mod.tooltip.hurt_sounds": "Персонаж будет издавать женский звук урона, если пол установлен на Женский или Другое",
+	"swakozas_puberty_mod.char_settings.hurt_sound_volume": "Громкость женских звуков: %s%%",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound": "Кастомный звук: %s",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.not_selected": "Не выбран",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.selected_count": "%s выбрано",
+	"swakozas_puberty_mod.char_settings.custom_hurt_sound.not_vorbis": " (не Vorbis)",
+	"swakozas_puberty_mod.char_settings.hurt_sound_overlay": "Наложение звуков: %s",
 
 	"swakozas_puberty_mod.breast_customization.dual_physics": "Раздельная физика: %s",
 

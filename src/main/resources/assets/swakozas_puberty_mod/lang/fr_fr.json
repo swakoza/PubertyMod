@@ -1,8 +1,10 @@
 {
-	"category.swakozas_puberty_mod.generic": "Swakoza's Puberty Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Menu Genre Féminin",
 
-	"swakozas_puberty_mod.player_list.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
 	"swakozas_puberty_mod.player_list.settings_button": "Paramètres",
 	"swakozas_puberty_mod.player_list.sync_status": "Sync Statut",
 	"swakozas_puberty_mod.player_list.state.loading": "Chargement des Données...",
@@ -11,7 +13,7 @@
 	"swakozas_puberty_mod.player_list.breast_momentum": "Élan de la Poitrine: %s%%",
 	"swakozas_puberty_mod.player_list.female_sounds": "Sons Féminins: %s",
 
-	"swakozas_puberty_mod.wardrobe.title": "Swakoza's Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
 	"swakozas_puberty_mod.wardrobe.slider.breast_size": "Taille de la Poitrine: %s%%",
 	"swakozas_puberty_mod.wardrobe.slider.separation": "Séparation: %s",
 	"swakozas_puberty_mod.wardrobe.slider.height": "Hauteur: %s",
