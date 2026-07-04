@@ -1,14 +1,16 @@
-![Mod Banner](https://media.discordapp.net/attachments/1450628867428716575/1506700749999177878/spm_banner.png?ex=6a0f37eb&is=6a0de66b&hm=861e2ebed57c3210423f1690a1e33e2b7a94b4d788f0403d65ccf53d9b025aa6&=&format=webp&quality=lossless&width=1755&height=480)
-# Puberty-Mod
+![Mod Banner](https://github.com/swakoza/PubertyMod/blob/main/src/main/resources/assets/swakozas_puberty_mod/banner.png?raw=true)
+# Puberty Mod
 
 ### Description
-The primary goal of this mod is to enhance your Minecraft player's appearance by adding breasts to your player model, providing a distinctive look compared to the standard model.
-It works on client-side without issues but if you wish to add syncing support then this mod must be present on the server aswell.
+This mod adds the ability to visually customize other players' models by changing their gender.
+When the gender is changed to female or “other,” a customizable bust is added to the character model.
+You can also set custom damage sounds for players with the gender set to female or “other” if you wish.
 
 ## Default Controls
 
-G - Open Swakoza's Gender Menu
+G - Open Puberty Mod menu
+H - Opens the edit menu when you hover over a player 
 
 ## License
 
-Puberty-Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/SwakozasPubertyMod/LICENSE).
+Puberty-Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/PubertyMod/LICENSE).
