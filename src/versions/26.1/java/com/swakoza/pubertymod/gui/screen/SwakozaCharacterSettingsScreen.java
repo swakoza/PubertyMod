@@ -130,6 +130,8 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         }, Tooltip.create(Component.translatable("swakozas_puberty_mod.tooltip.hurt_sounds"))));
 
         if (player.hasHurtSounds()) {
+            removeMissingCustomHurtSounds(player);
+
             this.addRenderableWidget(this.hurtSoundVolumeSlider = new SwakozaSlider(buttonX, buttonY + 144, buttonWidth, 20,
                     Configuration.HURT_SOUND_VOLUME, player.getHurtSoundVolume(), value -> {
             }, value -> Component.translatable("swakozas_puberty_mod.char_settings.hurt_sound_volume", Math.round(value * 100)), value -> {
@@ -171,7 +173,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     }
 
     private Component customSoundMessage(PlayerConfig player) {
-        List<String> customSounds = player.getCustomHurtSounds();
+        List<String> customSounds = existingCustomHurtSounds(player);
         Component selected = customSounds.isEmpty()
                 ? Component.translatable("swakozas_puberty_mod.char_settings.custom_hurt_sound.not_selected").withStyle(ChatFormatting.RED)
                 : (customSounds.size() == 1
@@ -192,7 +194,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     }
 
     private void toggleCustomSound(PlayerConfig player, String fileName) {
-        List<String> selectedSounds = new ArrayList<>(player.getCustomHurtSounds());
+        List<String> selectedSounds = new ArrayList<>(existingCustomHurtSounds(player));
         if (selectedSounds.contains(fileName)) {
             selectedSounds.remove(fileName);
         } else {
@@ -202,6 +204,22 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
             PlayerConfig.saveGenderInfo(player);
             this.rebuildWidgets();
         }
+    }
+
+    private void removeMissingCustomHurtSounds(PlayerConfig player) {
+        List<String> selectedSounds = player.getCustomHurtSounds();
+        List<String> existingSounds = existingCustomHurtSounds(player);
+        if (!selectedSounds.equals(existingSounds) && player.updateCustomHurtSounds(existingSounds)) {
+            PlayerConfig.saveGenderInfo(player);
+        }
+    }
+
+    private List<String> existingCustomHurtSounds(PlayerConfig player) {
+        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        return player.getCustomHurtSounds().stream()
+                .filter(availableSounds::contains)
+                .distinct()
+                .toList();
     }
 
     private void clampCustomSoundDropdownScroll(List<String> availableSounds) {
