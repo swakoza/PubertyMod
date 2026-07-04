@@ -1,14 +1,14 @@
 {
-	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
-	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
-	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Меню пола",
 	"key.swakozas_puberty_mod.target_player_menu": "Настроить игрока",
 	"toast.swakozas_puberty_mod.get_started": "Нажмите '%s', чтобы начать!",
 	"modmenu.descriptionTranslation.swakozas_puberty_mod": "Добавляет настраиваемый пол персонажа, параметры внешности, женские звуки урона и индивидуальные кастомные звуки для игроков.",
 	"modmenu.summaryTranslation.swakozas_puberty_mod": "Настройка пола, внешности и кастомных женских звуков урона.",
 
-	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty Mod",
 	"swakozas_puberty_mod.player_list.search": "Поиск по нику",
 	"swakozas_puberty_mod.player_list.settings_button": "Настройки",
 	"swakozas_puberty_mod.player_list.sync_status": "Статус синхронизации",
@@ -22,7 +22,7 @@
 	"swakozas_puberty_mod.player_list.hover_details": "Наведите на игрока",
 	"swakozas_puberty_mod.tooltip.nearby_players": "Отображение игроков рядом",
 
-	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty Mod",
 	"swakozas_puberty_mod.breast_customization.tab_customization": "Настройка",
 	"swakozas_puberty_mod.breast_customization.tab_presets": "Пресеты",
 

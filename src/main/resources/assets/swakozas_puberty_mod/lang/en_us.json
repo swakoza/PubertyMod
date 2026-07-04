@@ -1,14 +1,14 @@
 {
-	"category.swakozas_puberty_mod.generic": "Puberty-Mod",
-	"key.category.swakozas_puberty_mod.generic": "Puberty-Mod",
-	"key.categories.swakozas_puberty_mod.generic": "Puberty-Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty Mod",
+	"key.category.swakozas_puberty_mod.generic": "Puberty Mod",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty Mod",
 	"key.swakozas_puberty_mod.gender_menu": "Puberty Mod Menu",
 	"key.swakozas_puberty_mod.target_player_menu": "Edit Target Player",
 	"toast.swakozas_puberty_mod.get_started": "Press '%s' to get started!",
 	"modmenu.descriptionTranslation.swakozas_puberty_mod": "Adds configurable character gender, body appearance options, female hurt sounds, and per-player custom sound settings.",
 	"modmenu.summaryTranslation.swakozas_puberty_mod": "Configurable gender, appearance, and custom female hurt sounds.",
 
-	"swakozas_puberty_mod.player_list.title": "Puberty-Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty Mod",
 	"swakozas_puberty_mod.player_list.search": "Search by nickname",
 	"swakozas_puberty_mod.player_list.settings_button": "Settings",
 	"swakozas_puberty_mod.player_list.sync_status": "Sync Status",
@@ -22,7 +22,7 @@
 	"swakozas_puberty_mod.player_list.hover_details": "Hover a player row to preview",
 	"swakozas_puberty_mod.tooltip.nearby_players": "Show nearby players",
 
-	"swakozas_puberty_mod.wardrobe.title": "Puberty-Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty Mod",
 	"swakozas_puberty_mod.breast_customization.tab_customization": "Customization",
 	"swakozas_puberty_mod.breast_customization.tab_presets": "Presets",
 
