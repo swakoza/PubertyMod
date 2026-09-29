@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.main.entitydata;
 
@@ -25,6 +12,8 @@ import com.swakoza.pubertymod.main.SwakozaHelper;
 import com.swakoza.pubertymod.main.config.Configuration;
 import com.swakoza.pubertymod.main.Gender;
 import com.swakoza.pubertymod.physics.BreastPhysics;
+import com.swakoza.pubertymod.compat.PalPhysicsCompat;
+import com.swakoza.pubertymod.render.BreastTorsoAttachment;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
@@ -61,6 +50,18 @@ public class EntityConfig {
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
+    private PalPhysicsCompat.AttachmentPose renderedTorsoPose;
+    private int renderedTorsoTick = Integer.MIN_VALUE;
+
+    public void captureTorsoPose(PalPhysicsCompat.AttachmentPose pose, int tick) {
+        renderedTorsoPose = pose;
+        renderedTorsoTick = tick;
+    }
+
+    public PalPhysicsCompat.AttachmentPose getRenderedTorsoPose(int tick) {
+        long elapsed = (long) tick - renderedTorsoTick;
+        return elapsed >= 0 && elapsed <= 2 ? renderedTorsoPose : null;
+    }
 
 	EntityConfig(UUID uuid) {
 		this.uuid = uuid;
@@ -166,9 +167,17 @@ public class EntityConfig {
 	public void tickBreastPhysics(@Nonnull LivingEntity entity) {
 		IGenderArmor armor = SwakozaHelper.getArmorConfig(entity.getItemBySlot(EquipmentSlot.CHEST));
 
-		getLeftBreastPhysics().update(entity, armor);
-		getRightBreastPhysics().update(entity, armor);
+		PalPhysicsCompat.AttachmentPose pose = hasBreastPhysics() ? PalPhysicsCompat.sample(entity, followsUpperTorsoHalf()) : null;
+        getLeftBreastPhysics().update(entity, armor, pose, true);
+		getRightBreastPhysics().update(entity, armor, pose, false);
 	}
+
+    private boolean followsUpperTorsoHalf() {
+        float size = getLeftBreastPhysics().getBreastSize(0.0F);
+        if (size < 0.02F) size = getBustSize();
+        return BreastTorsoAttachment.followsUpperHalf(-getBreasts().getYOffset(), size,
+                BreastTorsoAttachment.modelDepth(size, getBreasts().getZOffset()));
+    }
 
 	@Override
 	public String toString() {

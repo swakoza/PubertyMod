@@ -72,11 +72,15 @@ public class SwakozaSlider extends ClickableWidget {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean result = super.keyPressed(keyCode, scanCode, modifiers);
         if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_RIGHT) {
+            double step = 1.0 / Math.max(1, this.width - 12);
+            this.value = MathHelper.clamp(this.value + (keyCode == GLFW.GLFW_KEY_RIGHT ? step : -step), 0, 1);
+            applyValue();
+            updateMessage();
             save();
+            return true;
         }
-        return result;
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     protected MutableText getNarrationMessage() {
@@ -94,7 +98,8 @@ public class SwakozaSlider extends ClickableWidget {
         ctx.fill(x, y, right, bottom, SwakozaScreenStyle.PANEL_BORDER_SOFT);
         ctx.fill(x + 1, y + 1, right - 1, bottom - 1, SwakozaScreenStyle.PANEL_BACKGROUND_ALT);
 
-        int textColor = this.hovered || changed ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.TEXT_PRIMARY;
+        boolean highlighted = this.active && (this.hovered || this.isFocused());
+        int textColor = this.active ? SwakozaScreenStyle.TEXT_PRIMARY : SwakozaScreenStyle.TEXT_DIM;
         TextRenderer font = MinecraftClient.getInstance().textRenderer;
         SwakozaHelper.drawScrollableText(ctx, font, this.getMessage(), x + 4, y + 1, right - 4, y + 12, textColor);
 
@@ -102,13 +107,15 @@ public class SwakozaSlider extends ClickableWidget {
         int trackRight = right - 6;
         int trackTop = bottom - 6;
         int trackBottom = bottom - 3;
-        ctx.fill(trackLeft, trackTop, trackRight, trackBottom, 0x55313A4A);
+        ctx.fill(trackLeft, trackTop, trackRight, trackBottom, highlighted ? 0xFF566078 : 0x55313A4A);
 
         int progressRight = trackLeft + (int)(this.value * (double)(trackRight - trackLeft));
-        ctx.fill(trackLeft, trackTop, progressRight, trackBottom, SwakozaScreenStyle.ACCENT_SOFT);
+        ctx.fill(trackLeft, trackTop, progressRight, trackBottom, highlighted ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.ACCENT_SOFT);
 
         int handleX = MathHelper.clamp(progressRight, trackLeft, trackRight - 1);
-        ctx.fill(handleX - 1, y + 3, handleX + 1, bottom - 3, SwakozaScreenStyle.ACCENT);
+        // The handle stays on the track below the label, like a Minecraft slider.
+        ctx.fill(handleX - 2, trackTop - 1, handleX + 3, trackBottom + 1, highlighted ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.PANEL_BORDER);
+        ctx.fill(handleX - 1, trackTop, handleX + 2, trackBottom, SwakozaScreenStyle.TEXT_PRIMARY);
     }
 
     public float getFloatValue() {
@@ -120,13 +127,14 @@ public class SwakozaSlider extends ClickableWidget {
     }
 
     public void setValue(double value) {
-        setValueInternal(value);
+        this.value = MathHelper.clamp((value - this.minValue) / (this.maxValue - this.minValue), 0, 1);
         applyValue();
+        updateMessage();
     }
 
     private void setValueInternal(double value) {
         this.value = MathHelper.clamp((value - this.minValue) / (this.maxValue - this.minValue), 0, 1);
-        this.lastValue = (float)value;
+        this.lastValue = getFloatValue();
         updateMessage();
     }
 
@@ -137,10 +145,12 @@ public class SwakozaSlider extends ClickableWidget {
     }
 
     @Override
-    public void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    public void appendClickableNarrations(NarrationMessageBuilder builder) {
+        this.appendDefaultNarrations(builder);
+    }
 
     private void setValueFromMouse(double mouseX) {
-        this.value = ((mouseX - (double)(this.getX() + 4)) / (double)(this.getWidth() - 8));
+        this.value = ((mouseX - (double)(this.getX() + 6)) / (double)(this.getWidth() - 12));
         if (this.value < 0.0F) this.value = 0.0F;
         if (this.value > 1.0F) this.value = 1.0F;
         applyValue();

@@ -4,14 +4,16 @@ import com.swakoza.pubertymod.main.SwakozaHelper;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
+import net.minecraft.text.OrderedText;
+import net.minecraft.util.Language;
 
 public final class SwakozaScreenStyle {
     public static final int OVERLAY = 0x66000000;
-    public static final int PANEL_BACKGROUND = 0xCC111217;
+    public static final int PANEL_BACKGROUND = 0xE4111217;
     public static final int PANEL_BACKGROUND_ALT = 0xB81A1D24;
     public static final int PANEL_HEADER = 0xE021242D;
-    public static final int PANEL_BORDER = 0x90FFFFFF;
-    public static final int PANEL_BORDER_SOFT = 0x553C4454;
+    public static final int PANEL_BORDER = 0xB0C1C8D6;
+    public static final int PANEL_BORDER_SOFT = 0xA05B6575;
     public static final int PANEL_SHADOW = 0x33000000;
     public static final int INPUT_BACKGROUND = 0xD0141720;
     public static final int INPUT_BORDER = 0x665B657A;
@@ -23,6 +25,26 @@ public final class SwakozaScreenStyle {
     public static final int ACCENT_SOFT = 0x884651C7;
 
     private SwakozaScreenStyle() {}
+
+    /** Keep styled labels inside their panel; the caller can expose the full text in a tooltip. */
+    public static boolean drawFittedText(DrawContext context, TextRenderer font, Text text,
+                                         int x, int y, int width, int color) {
+        if (width <= 0) return true;
+        boolean truncated = font.getWidth(text) > width;
+        OrderedText fitted = text.asOrderedText();
+        if (truncated) {
+            Text ellipsis = Text.literal("…");
+            fitted = OrderedText.concat(Language.getInstance().reorder(
+                    font.trimToWidth(text, Math.max(0, width - font.getWidth(ellipsis)))), ellipsis.asOrderedText());
+        }
+        context.enableScissor(x, y, x + width, y + font.fontHeight + 1);
+        try {
+            context.drawText(font, fitted, x, y, SwakozaHelper.ensureOpaqueArgb(color), false);
+        } finally {
+            context.disableScissor();
+        }
+        return truncated;
+    }
 
     public static void drawOverlay(DrawContext context, int width, int height) {
         context.fill(0, 0, width, height, OVERLAY);
@@ -46,7 +68,7 @@ public final class SwakozaScreenStyle {
     public static void drawHeaderPanel(DrawContext context, TextRenderer textRenderer, Text title, int x, int y, int width, int height) {
         drawPanel(context, x, y, width, height);
         drawHeaderStrip(context, x, y, width, 18);
-        context.drawText(textRenderer, title, x + 8, y + 5, SwakozaHelper.ensureOpaqueArgb(TEXT_PRIMARY), false);
+        drawFittedText(context, textRenderer, title, x + 8, y + 5, width - 28, TEXT_PRIMARY);
     }
 
     public static void drawPanelTitle(DrawContext context, TextRenderer textRenderer, Text title, int x, int y) {

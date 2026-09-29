@@ -1,25 +1,13 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.physics;
 
 import com.swakoza.pubertymod.api.IGenderArmor;
 import com.swakoza.pubertymod.compat.EntityCompat;
+import com.swakoza.pubertymod.compat.PalPhysicsCompat;
 import com.swakoza.pubertymod.main.entitydata.EntityConfig;
 import com.swakoza.pubertymod.main.SwakozaHelper;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -35,6 +23,7 @@ import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
 
 public class BreastPhysics {
 
@@ -42,6 +31,8 @@ public class BreastPhysics {
 	private float bounceVelX = 0, targetBounceX = 0, velocityX = 0, positionX, prePositionX;
 	//Y-Axis
 	private float bounceVel = 0, targetBounceY = 0, velocity = 0, positionY, prePositionY;
+	//Z-Axis (animation-driven depth lag)
+	private float bounceVelZ = 0, targetBounceZ = 0, velocityZ = 0, positionZ, prePositionZ;
 	//Rotation
 	private float bounceRotVel = 0, targetRotVel = 0, rotVelocity = 0, wfg_bounceRotation, wfg_preBounceRotation;
 
@@ -50,7 +41,15 @@ public class BreastPhysics {
 	private float breastSize = 0, preBreastSize = 0;
 
 	private Vec3d prePos;
+	private double previousVerticalVelocity;
+	private float previousTorsoYaw;
+	private PalPhysicsCompat.AttachmentPose previousAnimationPose;
+	private float previousProbeX, previousProbeY, previousProbeZ;
+	private float previousAnimationVelocityX, previousAnimationVelocityY, previousAnimationVelocityZ;
 	private final EntityConfig entityConfig;
+	private static final float MAX_ANIMATION_IMPULSE = 1.0F;
+	private static final float MAX_POSTURE_OFFSET = 6.0F;
+	private static final float MAX_JUMP_IMPULSE = 3.0F;
 
 	public BreastPhysics(EntityConfig entityConfig) {
 		this.entityConfig = entityConfig;
@@ -60,6 +59,10 @@ public class BreastPhysics {
 	private boolean alreadyFalling = false;
 
 	public void update(LivingEntity entity, IGenderArmor armor) {
+		update(entity, armor, null, true);
+	}
+
+	public void update(LivingEntity entity, IGenderArmor armor, PalPhysicsCompat.AttachmentPose animationPose, boolean left) {
 		if(entity instanceof ArmorStandEntity && !armor.armorStandsCopySettings()) {
 			// optimization: skip physics on armor stands that either don't have a chestplate,
 			// or have a chestplate we wouldn't copy player settings to
@@ -68,11 +71,14 @@ public class BreastPhysics {
 
 		this.prePositionY = this.positionY;
 		this.prePositionX = this.positionX;
+		this.prePositionZ = this.positionZ;
 		this.wfg_preBounceRotation = this.wfg_bounceRotation;
 		this.preBreastSize = this.breastSize;
 
 		if(this.prePos == null) {
 			this.prePos = EntityCompat.getPos(entity);
+			this.previousVerticalVelocity = entity.getVelocity().y;
+			this.previousTorsoYaw = entity.bodyYaw;
 			return;
 		}
 
@@ -103,6 +109,8 @@ public class BreastPhysics {
 
 		Vec3d motion = EntityCompat.getPos(entity).subtract(this.prePos);
 		this.prePos = EntityCompat.getPos(entity);
+		float verticalAcceleration = (float) (entity.getVelocity().y - this.previousVerticalVelocity);
+		this.previousVerticalVelocity = entity.getVelocity().y;
 
 		float bounceIntensity = (targetBreastSize * 3f) * Math.round((entityConfig.getBounceMultiplier() * 3) * 100) / 100f;
 		float resistance = MathHelper.clamp(armor.physicsResistance(), 0, 1);
@@ -123,8 +131,51 @@ public class BreastPhysics {
 
 		this.targetBounceY = (float) motion.y * bounceIntensity;
 		this.targetBounceY += breastWeight;
-		float horizVel = (float) Math.sqrt(Math.pow(motion.x, 2) + Math.pow(motion.z, 2)) * (bounceIntensity);
-		this.targetRotVel = -((entity.bodyYaw - EntityCompat.getPreviousBodyYaw(entity)) / 15f) * bounceIntensity;
+		// Jump takeoff and landing change vertical velocity sharply. Position
+		// alone produces less than one pixel of movement at the old spring limits.
+		if (Math.abs(verticalAcceleration) > 0.03F) {
+			this.targetBounceY += MathHelper.clamp(verticalAcceleration * bounceIntensity * 4.0F,
+					-MAX_JUMP_IMPULSE, MAX_JUMP_IMPULSE);
+		}
+		this.targetBounceX = 0.0F;
+		this.targetBounceZ = 0.0F;
+		float animationImpulseX = 0.0F, animationImpulseY = 0.0F, animationImpulseZ = 0.0F;
+		if (animationPose != null) {
+			// Follow a point on the breast rather than only the torso center. A dance
+			// can rotate the chest without translating its center at all.
+			Vector3f probe = animationPose.breastProbe(left);
+			if (previousAnimationPose != null) {
+				float animationVelocityX = probe.x - previousProbeX;
+				float animationVelocityY = probe.y - previousProbeY;
+				float animationVelocityZ = probe.z - previousProbeZ;
+				Vector3f acceleration = animationPose.neutralToLocal().transform(new Vector3f(
+						animationVelocityX - previousAnimationVelocityX,
+						animationVelocityY - previousAnimationVelocityY,
+						animationVelocityZ - previousAnimationVelocityZ));
+				animationImpulseX = MathHelper.clamp(-acceleration.x * bounceIntensity,
+						-MAX_ANIMATION_IMPULSE, MAX_ANIMATION_IMPULSE);
+				animationImpulseY = MathHelper.clamp(-acceleration.y * bounceIntensity,
+						-MAX_ANIMATION_IMPULSE, MAX_ANIMATION_IMPULSE);
+				animationImpulseZ = MathHelper.clamp(-acceleration.z * bounceIntensity,
+						-MAX_ANIMATION_IMPULSE, MAX_ANIMATION_IMPULSE);
+				previousAnimationVelocityX = animationVelocityX;
+				previousAnimationVelocityY = animationVelocityY;
+				previousAnimationVelocityZ = animationVelocityZ;
+			} else {
+				previousAnimationVelocityX = previousAnimationVelocityY = previousAnimationVelocityZ = 0.0F;
+			}
+			previousProbeX = probe.x;
+			previousProbeY = probe.y;
+			previousProbeZ = probe.z;
+		} else {
+			previousAnimationVelocityX = previousAnimationVelocityY = previousAnimationVelocityZ = 0.0F;
+		}
+		this.previousAnimationPose = animationPose;
+		// The torso follows sufficiently large head turns even while stationary.
+		// Use its actual rotation, never headYaw: a head-only turn adds no force.
+		this.targetRotVel = -(MathHelper.wrapDegrees(entity.bodyYaw - this.previousTorsoYaw) / 15.0F)
+				* bounceIntensity;
+		this.previousTorsoYaw = entity.bodyYaw;
 
 		float f2 = (float) entity.getVelocity().lengthSquared() / 0.2F;
 		f2 = f2 * f2 * f2;
@@ -210,10 +261,23 @@ public class BreastPhysics {
 		if(bounceVel > 2.5f) {
 			targetBounceY -= distanceFromMax;
 		}
-		if(targetBounceY < -1.5f) targetBounceY = -1.5f;
-		if(targetBounceY > 2.5f) targetBounceY = 2.5f;
+		if(targetBounceY < -2.5f) targetBounceY = -2.5f;
+		if(targetBounceY > 4.0f) targetBounceY = 4.0f;
 		if(targetRotVel < -25f) targetRotVel = -25f;
 		if(targetRotVel > 25f) targetRotVel = 25f;
+		if (animationPose != null) {
+			// Jump, landing and other vertical forces follow world gravity after
+			// projection into the current torso frame. A held bend also sags forward.
+			float verticalForce = this.targetBounceY;
+			float postureSag = targetBreastSize * 4.0F * (1.0F - resistance);
+			this.targetBounceX = MathHelper.clamp(
+					(verticalForce + postureSag) * animationPose.gravityX() + animationImpulseX,
+					-MAX_POSTURE_OFFSET, MAX_POSTURE_OFFSET);
+			this.targetBounceY = verticalForce * animationPose.gravityY() + animationImpulseY;
+			this.targetBounceZ = MathHelper.clamp(
+					(verticalForce + postureSag) * animationPose.gravityZ() + animationImpulseZ,
+					-MAX_POSTURE_OFFSET, MAX_POSTURE_OFFSET);
+		}
 
 		this.velocity = MathHelper.lerp(bounceAmount, this.velocity, (this.targetBounceY - this.bounceVel) * delta);
 		this.bounceVel += this.velocity * percent * 1.1625f;
@@ -222,16 +286,21 @@ public class BreastPhysics {
 		this.velocityX = MathHelper.lerp(bounceAmount, this.velocityX, (this.targetBounceX - this.bounceVelX) * delta);
 		this.bounceVelX += this.velocityX * percent;
 
+		//Z
+		this.velocityZ = MathHelper.lerp(bounceAmount, this.velocityZ, (this.targetBounceZ - this.bounceVelZ) * delta);
+		this.bounceVelZ += this.velocityZ * percent;
+
 		this.rotVelocity = MathHelper.lerp(bounceAmount, this.rotVelocity, (this.targetRotVel - this.bounceRotVel) * delta);
 		this.bounceRotVel += this.rotVelocity * percent;
 
 		this.wfg_bounceRotation = this.bounceRotVel;
-		this.positionX = this.bounceVelX;
+		this.positionX = MathHelper.clamp(this.bounceVelX, -MAX_POSTURE_OFFSET, MAX_POSTURE_OFFSET);
 		this.positionY = this.bounceVel;
+		this.positionZ = MathHelper.clamp(this.bounceVelZ, -MAX_POSTURE_OFFSET, MAX_POSTURE_OFFSET);
 
-		if(this.positionY < -0.5f) this.positionY = -0.5f;
-		if(this.positionY > 1.5f) {
-			this.positionY = 1.5f;
+		if(this.positionY < -2.0f) this.positionY = -2.0f;
+		if(this.positionY > 3.5f) {
+			this.positionY = 3.5f;
 			this.velocity = 0;
 		}
 
@@ -253,6 +322,14 @@ public class BreastPhysics {
 	}
 	public float getPositionX() {
 		return this.positionX;
+	}
+
+	public float getPrePositionZ() {
+		return this.prePositionZ;
+	}
+
+	public float getPositionZ() {
+		return this.positionZ;
 	}
 
 	public float getBounceRotation() {

@@ -25,6 +25,7 @@ public final class CustomHurtSoundManager {
     private static final String DEFAULT_SOUND_RESOURCE = "/assets/swakozas_puberty_mod/sounds/female_damage.ogg";
     private static final Map<UUID, ActiveSound> ACTIVE_SOUNDS = new ConcurrentHashMap<>();
 
+    private static final double HEARING_DISTANCE = 16.0;
     private CustomHurtSoundManager() {}
 
     public static Path getHurtSoundsDirectory() {
@@ -77,7 +78,7 @@ public final class CustomHurtSoundManager {
         }
     }
 
-    public static boolean playRandom(UUID playerId, List<String> fileNames, float volume, boolean overlay) {
+    public static boolean playRandom(net.minecraft.world.entity.player.Player source, List<String> fileNames, float volume, boolean overlay) {
         if (fileNames == null || fileNames.isEmpty()) {
             return false;
         }
@@ -92,8 +93,13 @@ public final class CustomHurtSoundManager {
             return false;
         }
 
+        net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
+        if (client.player == null || client.level != com.swakoza.pubertymod.compat.EntityCompat.getWorld(source)) return true;
+        double distance = Math.sqrt(source.distanceToSqr(client.player));
+        if (distance >= HEARING_DISTANCE) return true;
+        float attenuation = (float)(1.0 - distance / HEARING_DISTANCE);
         String fileName = existing.get(ThreadLocalRandom.current().nextInt(existing.size()));
-        return play(playerId, fileName, volume, overlay);
+        return play(source.getUUID(), fileName, volume * attenuation * attenuation, overlay);
     }
 
     private static boolean isSoundFilePresent(String fileName) {

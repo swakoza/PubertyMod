@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.main;
 
@@ -40,6 +27,9 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
@@ -102,9 +92,21 @@ public class SwakozaEventHandler {
 	}
 
 	private static void openTargetPlayerMenu(MinecraftClient client) {
-		HitResult target = client.crosshairTarget;
-		if(!(target instanceof EntityHitResult entityHitResult)) return;
-		if(!(entityHitResult.getEntity() instanceof PlayerEntity targetPlayer)) return;
+        // Editing is not limited to the attack/interact reach of the vanilla crosshair.
+        Entity camera = client.getCameraEntity();
+        if (camera == null) return;
+        Vec3d start = camera.getCameraPosVec(1.0F);
+        Vec3d ray = camera.getRotationVec(1.0F).multiply(32.0);
+        Vec3d end = start.add(ray);
+        HitResult obstruction = client.world.raycast(new RaycastContext(start, end,
+                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, camera));
+        double distanceSquared = start.squaredDistanceTo(obstruction.getPos());
+        EntityHitResult target = ProjectileUtil.raycast(camera, start, end,
+                camera.getBoundingBox().stretch(ray).expand(1.0),
+                entity -> entity instanceof PlayerEntity && entity != client.player && !entity.isSpectator(),
+                distanceSquared);
+        if (target == null || start.squaredDistanceTo(target.getPos()) >= distanceSquared) return;
+        PlayerEntity targetPlayer = (PlayerEntity) target.getEntity();
 
 		PlayerConfig targetConfig = SwakozaPubertyMod.getOrAddPlayerById(targetPlayer.getUuid());
 		if(!targetPlayer.getUuid().equals(client.player.getUuid()) && targetConfig.getSyncStatus() == PlayerConfig.SyncStatus.UNKNOWN) {

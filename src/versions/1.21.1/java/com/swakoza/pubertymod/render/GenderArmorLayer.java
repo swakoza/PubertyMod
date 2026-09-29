@@ -64,7 +64,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 
             matrixStack.push();
             try {
-                setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT);
+                setupTransformations(ent, model.body, matrixStack, BreastSide.LEFT, partialTicks);
                 renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, BreastSide.LEFT);
             } finally {
                 matrixStack.pop();
@@ -72,7 +72,7 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
 
             matrixStack.push();
             try {
-                setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT);
+                setupTransformations(ent, model.body, matrixStack, BreastSide.RIGHT, partialTicks);
                 renderBreastArmor(ent, matrixStack, vertexConsumerProvider, packedLightIn, BreastSide.RIGHT);
             } finally {
                 matrixStack.pop();
@@ -83,8 +83,8 @@ public class GenderArmorLayer<T extends LivingEntity, M extends BipedEntityModel
     }
 
     @Override
-    protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side) {
-        super.setupTransformations(entity, body, matrixStack, side);
+    protected void setupTransformations(T entity, ModelPart body, MatrixStack matrixStack, BreastSide side, float partialTicks) {
+        super.setupTransformations(entity, body, matrixStack, side, partialTicks);
         if ((entity instanceof AbstractClientPlayerEntity player && player.isPartVisible(PlayerModelPart.JACKET))
                 || (entity instanceof ArmorStandEntity && entityConfig.hasJacketLayer())) {
             matrixStack.translate(0, 0, -0.015f);

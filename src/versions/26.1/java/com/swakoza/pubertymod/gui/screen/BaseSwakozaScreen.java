@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.gui.screen;
 
@@ -23,15 +10,17 @@ import com.swakoza.pubertymod.compat.GameProfileCompat;
 import com.swakoza.pubertymod.gui.SwakozaPreviewPlayerEntity;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
+import com.swakoza.pubertymod.main.networking.SwakozaSync;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 
 public abstract class BaseSwakozaScreen extends Screen {
 
@@ -45,6 +34,14 @@ public abstract class BaseSwakozaScreen extends Screen {
         this.playerUUID = uuid;
     }
 
+    @Override
+    protected void init() {
+        super.init();
+        if (getPlayer().getSyncStatus() == PlayerConfig.SyncStatus.UNKNOWN) {
+            SwakozaSync.requestPlayerData(this.playerUUID);
+        }
+    }
+
     public PlayerConfig getPlayer() {
         return SwakozaPubertyMod.getOrAddPlayerById(this.playerUUID);
     }
@@ -53,6 +50,10 @@ public abstract class BaseSwakozaScreen extends Screen {
         if (this.minecraft == null || this.minecraft.level == null || this.minecraft.player == null) {
             return null;
         }
+
+        // The live entity owns equipment, vanilla actions and optional EmoteCraft animation state.
+        Player livePlayer = this.minecraft.level.getPlayerByUUID(this.playerUUID);
+        if (livePlayer != null) return livePlayer;
 
         SwakozaPreviewPlayerEntity previewEntity = this.previewPlayers.get(this.playerUUID);
         if (previewEntity == null) {

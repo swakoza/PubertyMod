@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.mixins;
 
@@ -94,7 +81,7 @@ public abstract class LivingEntityMixin {
 
 		SoundEvent hurtSound = genderPlayer.getGender().getHurtSound();
 		if(hurtSound != null) {
-			if(EntityCompat.getWorld(player).isClientSide() && CustomHurtSoundManager.playRandom(player.getUUID(), genderPlayer.getCustomHurtSounds(), genderPlayer.getHurtSoundVolume(), genderPlayer.shouldOverlayHurtSounds())) {
+			if(EntityCompat.getWorld(player).isClientSide() && CustomHurtSoundManager.playRandom(player, genderPlayer.getCustomHurtSounds(), genderPlayer.getHurtSoundVolume(), genderPlayer.shouldOverlayHurtSounds())) {
 				return;
 			}
 			float pitch = (player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.2F + 1.0F;

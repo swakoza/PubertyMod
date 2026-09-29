@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.render;
 
@@ -79,6 +66,8 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 	}
 
 	protected void renderBreastArmor(S state, PoseStack matrices, SubmitNodeCollector queue, int light, BreastSide side) {
+        BreastDeformation.Displacement deformation = this.deformation;
+        BreastDeformation.BackPlane backPlane = this.backPlane;
 		Equippable equippable = this.armorStack.get(DataComponents.EQUIPPABLE);
 		if(equippable == null || equippable.slot() != EquipmentSlot.CHEST) return;
 
@@ -106,9 +95,9 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 						net.minecraft.util.ARGB.redFloat(color),
 						net.minecraft.util.ARGB.greenFloat(color),
 						net.minecraft.util.ARGB.blueFloat(color),
-						net.minecraft.util.ARGB.alphaFloat(color)));
+						net.minecraft.util.ARGB.alphaFloat(color), deformation, backPlane));
 				if(hasGlint) {
-					queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(armorBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f));
+					queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(armorBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
 				}
 			}
 
@@ -131,14 +120,16 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 
 	protected void renderArmorTrim(ResourceKey<EquipmentAsset> assetKey, PoseStack matrices, SubmitNodeCollector queue, int light,
 			ArmorTrim trim, boolean hasGlint, BreastSide side) {
+        BreastDeformation.Displacement deformation = this.deformation;
+        BreastDeformation.BackPlane backPlane = this.backPlane;
 		BreastModelBox trimBox = side == BreastSide.LEFT ? this.lTrim : this.rTrim;
 		TextureAtlasSprite sprite = this.armorTrimsAtlas.getSprite(trim.layerAssetId(EquipmentClientInfo.LayerType.HUMANOID.trimAssetPrefix(), assetKey));
 		queue.submitCustomGeometry(matrices, Sheets.armorTrimsSheet(trim.pattern().value().decal()), (entry, vertexConsumer) -> {
 			VertexConsumer spriteConsumer = sprite.wrap(vertexConsumer);
-			renderBox(trimBox, entry, spriteConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+			renderBox(trimBox, entry, spriteConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane);
 		});
 		if(hasGlint) {
-			queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(trimBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f));
+			queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(trimBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
 		}
 	}
 }

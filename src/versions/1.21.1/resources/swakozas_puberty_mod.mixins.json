@@ -10,7 +10,10 @@
   "client": [
     "ArmorStandEntityRendererMixin",
     "PlayerRenderMixin",
-    "BreastPhysicsTickMixin"
+    "BreastPhysicsTickMixin",
+    "PreviewLivingEntityRendererMixin",
+    "PreviewInventoryScreenMixin",
+    "PreviewEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

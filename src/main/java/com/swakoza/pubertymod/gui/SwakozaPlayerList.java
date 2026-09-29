@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.gui;
 
@@ -58,6 +45,7 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
     private final SwakozaPlayerListScreen parent;
     private String filter = "";
     private boolean nearbyOnly;
+    private final java.util.Map<UUID, Entry> entryCache = new java.util.HashMap<>();
 
     public SwakozaPlayerList(SwakozaPlayerListScreen parent, int listWidth, int top, int bottom) {
         super(MinecraftClient.getInstance(), listWidth, bottom - top, top, 20);
@@ -98,11 +86,22 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
         if (this.client == null || this.client.player == null) return;
 
         ClientPlayNetworkHandler networkHandler = this.client.player.networkHandler;
+        java.util.Set<UUID> online = new java.util.HashSet<>();
+        networkHandler.getPlayerList().forEach(info -> online.add(GameProfileCompat.id(info.getProfile())));
+        this.entryCache.keySet().retainAll(online);
         networkHandler.getPlayerList().stream()
                 .sorted(this.entryOrdering())
                 .filter(this::matchesFilter)
                 .filter(this::matchesNearby)
-                .forEach(playerList -> addEntry(new Entry(playerList)));
+                .forEach(info -> {
+                    UUID id = GameProfileCompat.id(info.getProfile());
+                    Entry cached = this.entryCache.get(id);
+                    if (cached == null || cached.playerInfo != info) {
+                        cached = new Entry(info);
+                        this.entryCache.put(id, cached);
+                    }
+                    addEntry(cached);
+                });
     }
 
     private boolean matchesFilter(PlayerListEntry entry) {
@@ -125,11 +124,8 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
         }
 
         UUID uuid = GameProfileCompat.id(entry.getProfile());
-        return this.client.world.getPlayers().stream()
-                .filter(player -> uuid.equals(player.getUuid()))
-                .mapToDouble(player -> player.squaredDistanceTo(this.client.player))
-                .findFirst()
-                .orElse(Double.MAX_VALUE);
+        PlayerEntity player = this.client.world.getPlayerByUuid(uuid);
+        return player == null ? Double.MAX_VALUE : player.squaredDistanceTo(this.client.player);
     }
 
     private boolean matchesNearby(PlayerListEntry entry) {
@@ -177,15 +173,16 @@ public class SwakozaPlayerList extends EntryListWidget<SwakozaPlayerList.Entry> 
             }
 
             PlayerSkinDrawer.draw(ctx, playerInfo.getSkinTextures(), x + 2, y + 2, 16);
-            ctx.drawText(font, name, x + 23, y + 2, SwakozaScreenStyle.TEXT_PRIMARY, false);
+            boolean clippedName = SwakozaScreenStyle.drawFittedText(ctx, font, Text.literal(name), x + 23, y + 2, rowRight - x - 25, SwakozaScreenStyle.TEXT_PRIMARY);
 
-            ctx.drawText(font, this.playerConfig.getGender().getDisplayName(), x + 23, y + 11, SwakozaScreenStyle.ACCENT, false);
+            SwakozaScreenStyle.drawFittedText(ctx, font, this.playerConfig.getGender().getDisplayName(), x + 23, y + 11, rowRight - x - 25, SwakozaScreenStyle.ACCENT);
 
             this.btnOpenGUI.setX(x);
             this.btnOpenGUI.setY(y);
             this.btnOpenGUI.render(ctx, mouseX, mouseY, partialTicks);
 
             if (this.btnOpenGUI.isHovered()) {
+                if (clippedName) parent.setTooltip(Text.literal(name));
                 parent.setHoveredPlayer(this.playerConfig);
                 parent.setHoveredEntry(this.playerInfo);
             }

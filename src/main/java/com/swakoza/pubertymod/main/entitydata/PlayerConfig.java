@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.main.entitydata;
 
@@ -41,7 +28,7 @@ public class PlayerConfig extends EntityConfig {
 
 	private final Configuration cfg;
 	private boolean hurtSounds = Configuration.HURT_SOUNDS.getDefault();
-	private List<String> customHurtSounds = new ArrayList<>(Configuration.CUSTOM_HURT_SOUNDS.getDefault());
+	private List<String> customHurtSounds = List.copyOf(Configuration.CUSTOM_HURT_SOUNDS.getDefault());
 	private float hurtSoundVolume = Configuration.HURT_SOUND_VOLUME.getDefault();
 	private boolean hurtSoundOverlay = Configuration.HURT_SOUND_OVERLAY.getDefault();
 	private boolean armorPhysOverride = Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault();
@@ -112,7 +99,7 @@ public class PlayerConfig extends EntityConfig {
 	}
 
 	public List<String> getCustomHurtSounds() {
-		return List.copyOf(customHurtSounds);
+		return customHurtSounds;
 	}
 
 	public boolean updateCustomHurtSounds(List<String> value) {
@@ -120,7 +107,7 @@ public class PlayerConfig extends EntityConfig {
 				.filter(item -> item != null && !item.isBlank())
 				.distinct()
 				.toList();
-		return updateValue(Configuration.CUSTOM_HURT_SOUNDS, next, v -> this.customHurtSounds = new ArrayList<>(v));
+		return updateValue(Configuration.CUSTOM_HURT_SOUNDS, next, v -> this.customHurtSounds = List.copyOf(v));
 	}
 
 	public float getHurtSoundVolume() {
@@ -165,6 +152,33 @@ public class PlayerConfig extends EntityConfig {
 
 	public boolean updateFloppiness(float value) {
 		return updateValue(Configuration.FLOPPY_MULTIPLIER, value, v -> this.floppyMultiplier = v);
+	}
+
+
+	public void resetAppearanceSettings() {
+		updateGender(Configuration.GENDER.getDefault());
+		updateBustSize(Configuration.BUST_SIZE.getDefault());
+		Breasts breasts = getBreasts();
+		breasts.updateXOffset(Configuration.BREASTS_OFFSET_X.getDefault());
+		breasts.updateYOffset(Configuration.BREASTS_OFFSET_Y.getDefault());
+		breasts.updateZOffset(Configuration.BREASTS_OFFSET_Z.getDefault());
+		breasts.updateCleavage(Configuration.BREASTS_CLEAVAGE.getDefault());
+		breasts.updateUniboob(Configuration.BREASTS_UNIBOOB.getDefault());
+	}
+
+	public void resetPhysicsSettings() {
+		updateBreastPhysics(Configuration.BREAST_PHYSICS.getDefault());
+		updateShowBreastsInArmor(Configuration.SHOW_IN_ARMOR.getDefault());
+		updateArmorPhysicsOverride(Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault());
+		updateBounceMultiplier(Configuration.BOUNCE_MULTIPLIER.getDefault());
+		updateFloppiness(Configuration.FLOPPY_MULTIPLIER.getDefault());
+	}
+
+	public void resetSoundSettings() {
+		updateHurtSounds(Configuration.HURT_SOUNDS.getDefault());
+		updateHurtSoundVolume(Configuration.HURT_SOUND_VOLUME.getDefault());
+		updateHurtSoundOverlay(Configuration.HURT_SOUND_OVERLAY.getDefault());
+		updateCustomHurtSounds(Configuration.CUSTOM_HURT_SOUNDS.getDefault());
 	}
 
 	public SyncStatus getSyncStatus() {
@@ -261,10 +275,11 @@ public class PlayerConfig extends EntityConfig {
 		config.set(Configuration.BREASTS_UNIBOOB, plr.getBreasts().isUniboob());
 		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
 
-		config.save();
-		plr.localConfigPresent = true;
-		plr.syncStatus = SyncStatus.CACHED;
-		plr.needsSync = true;
+        if (config.save()) {
+            plr.localConfigPresent = true;
+            plr.syncStatus = SyncStatus.CACHED;
+            plr.needsSync = true;
+        }
 	}
 
 	@Override

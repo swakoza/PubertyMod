@@ -34,3 +34,6 @@ bin/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# local reference mod archives
+/*.jar

@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.gui.screen;
 
@@ -131,7 +118,6 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         }, Tooltip.of(Text.translatable("swakozas_puberty_mod.tooltip.hurt_sounds"))));
 
         if (player.hasHurtSounds()) {
-            removeMissingCustomHurtSounds(player);
 
             this.addDrawableChild(this.hurtSoundVolumeSlider = new SwakozaSlider(buttonX, buttonY + 144, buttonWidth, 20,
                     Configuration.HURT_SOUND_VOLUME, player.getHurtSoundVolume(), value -> {
@@ -204,14 +190,6 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         if (player.updateCustomHurtSounds(selectedSounds)) {
             PlayerConfig.saveGenderInfo(player);
             this.clearAndInit();
-        }
-    }
-
-    private void removeMissingCustomHurtSounds(PlayerConfig player) {
-        List<String> selectedSounds = player.getCustomHurtSounds();
-        List<String> existingSounds = existingCustomHurtSounds(player);
-        if (!selectedSounds.equals(existingSounds) && player.updateCustomHurtSounds(existingSounds)) {
-            PlayerConfig.saveGenderInfo(player);
         }
     }
 

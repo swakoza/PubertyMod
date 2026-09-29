@@ -14,6 +14,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     private static final Text ENABLED = Text.translatable("swakozas_puberty_mod.label.enabled").formatted(Formatting.GREEN);
     private static final Text DISABLED = Text.translatable("swakozas_puberty_mod.label.disabled").formatted(Formatting.RED);
     private static final int PANEL_WIDTH = 224;
+    private static final int PREVIEW_WIDTH = 150;
+    private static final int PANEL_GAP = 12;
     private static final int PANEL_HEIGHT = 176;
     private static final int PANEL_HEIGHT_WITH_CUSTOM_SOUND = 248;
     private static final int CUSTOM_SOUND_OPTION_HEIGHT = 18;
@@ -34,6 +37,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     private boolean bounceWarning;
     private boolean customSoundDropdownOpen;
     private int customSoundDropdownScroll;
+    private List<String> availableSounds = List.of();
 
     protected SwakozaCharacterSettingsScreen(Screen parent, UUID uuid) {
         super(Text.translatable("swakozas_puberty_mod.char_settings.title"), parent, uuid);
@@ -41,6 +45,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
 
     @Override
     public void init() {
+        this.availableSounds = CustomHurtSoundManager.listSoundFiles();
         PlayerConfig player = getPlayer();
         int buttonX = panelX() + 10;
         int buttonY = panelY() + 28;
@@ -112,7 +117,6 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         }, Tooltip.of(Text.translatable("swakozas_puberty_mod.tooltip.hurt_sounds"))));
 
         if (player.hasHurtSounds()) {
-            removeMissingCustomHurtSounds(player);
 
             this.addDrawableChild(this.hurtSoundVolumeSlider = new SwakozaSlider(buttonX, buttonY + 144, buttonWidth, 20,
                     Configuration.HURT_SOUND_VOLUME, player.getHurtSoundVolume(), value -> {
@@ -138,7 +142,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
             }));
 
             if (this.customSoundDropdownOpen) {
-                List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+                List<String> availableSounds = this.availableSounds;
                 clampCustomSoundDropdownScroll(availableSounds);
                 int optionY = customSoundDropdownY();
                 int visibleSounds = customSoundDropdownVisibleCount(availableSounds);
@@ -188,16 +192,8 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         }
     }
 
-    private void removeMissingCustomHurtSounds(PlayerConfig player) {
-        List<String> selectedSounds = player.getCustomHurtSounds();
-        List<String> existingSounds = existingCustomHurtSounds(player);
-        if (!selectedSounds.equals(existingSounds) && player.updateCustomHurtSounds(existingSounds)) {
-            PlayerConfig.saveGenderInfo(player);
-        }
-    }
-
     private List<String> existingCustomHurtSounds(PlayerConfig player) {
-        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        List<String> availableSounds = this.availableSounds;
         return player.getCustomHurtSounds().stream()
                 .filter(availableSounds::contains)
                 .distinct()
@@ -229,7 +225,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         if (!this.customSoundDropdownOpen || !getPlayer().hasHurtSounds()) {
             return false;
         }
-        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        List<String> availableSounds = this.availableSounds;
         int dropdownHeight = customSoundDropdownVisibleCount(availableSounds) * CUSTOM_SOUND_OPTION_HEIGHT;
         return dropdownHeight > 0
                 && mouseX >= customSoundDropdownX()
@@ -242,7 +238,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         if (!isMouseOverCustomSoundDropdown(mouseX, mouseY)) {
             return false;
         }
-        List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+        List<String> availableSounds = this.availableSounds;
         int previousScroll = this.customSoundDropdownScroll;
         this.customSoundDropdownScroll += verticalAmount < 0 ? 1 : -1;
         clampCustomSoundDropdownScroll(availableSounds);
@@ -253,7 +249,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
     }
 
     private int panelX() {
-        return this.width / 2 - PANEL_WIDTH / 2;
+        return this.width / 2 - (PREVIEW_WIDTH + PANEL_GAP + PANEL_WIDTH) / 2 + PREVIEW_WIDTH + PANEL_GAP;
     }
 
     private int panelY() {
@@ -264,15 +260,17 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         if (!getPlayer().hasHurtSounds()) {
             return PANEL_HEIGHT;
         }
-        return PANEL_HEIGHT_WITH_CUSTOM_SOUND;
+        return PANEL_HEIGHT_WITH_CUSTOM_SOUND + (this.customSoundDropdownOpen
+                ? customSoundDropdownVisibleCount(this.availableSounds) * CUSTOM_SOUND_OPTION_HEIGHT + 4 : 0);
     }
 
     @Override
     public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
         SwakozaScreenStyle.drawOverlay(ctx, this.width, this.height);
+        SwakozaScreenStyle.drawPanel(ctx, panelX() - PREVIEW_WIDTH - PANEL_GAP, panelY(), PREVIEW_WIDTH, panelHeight());
         SwakozaScreenStyle.drawHeaderPanel(ctx, this.textRenderer, this.title, panelX(), panelY(), PANEL_WIDTH, panelHeight());
         if (this.customSoundDropdownOpen && getPlayer().hasHurtSounds()) {
-            List<String> availableSounds = CustomHurtSoundManager.listSoundFiles();
+            List<String> availableSounds = this.availableSounds;
             int dropdownHeight = customSoundDropdownVisibleCount(availableSounds) * CUSTOM_SOUND_OPTION_HEIGHT;
             if (dropdownHeight > 0) {
                 SwakozaScreenStyle.drawPanel(ctx, customSoundDropdownX(), customSoundDropdownY(), customSoundDropdownWidth(), dropdownHeight);
@@ -288,8 +286,32 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
 
         LivingEntity entity = getPreviewEntity();
         if (entity != null) {
-            SwakozaHelper.drawCenteredText(ctx, this.textRenderer, entity.getDisplayName(), this.width / 2, panelY() - 14, SwakozaScreenStyle.TEXT_PRIMARY);
+            WardrobeBrowserScreen.drawEntityPreview(ctx, panelX() - PREVIEW_WIDTH - PANEL_GAP + 8, panelY() + 8,
+                    PREVIEW_WIDTH - 16, panelHeight() - 16, entity, mouseX, mouseY);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && this.customSoundDropdownOpen
+                && !isMouseOverCustomSoundDropdown(mouseX, mouseY)
+                && !(mouseX >= customSoundDropdownX() && mouseX < customSoundDropdownX() + customSoundDropdownWidth()
+                && mouseY >= panelY() + 196 && mouseY < panelY() + 216)) {
+            this.customSoundDropdownOpen = false;
+            this.clearAndInit();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE && this.customSoundDropdownOpen) {
+            this.customSoundDropdownOpen = false;
+            this.clearAndInit();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

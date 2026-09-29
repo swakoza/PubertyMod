@@ -31,7 +31,7 @@ if (versionConfig == null) {
 }
 
 def modernMinecraft = targetMinecraftVersion.startsWith("26.")
-def effectiveModVersion = (findProperty("mod_version") ?: "1.1-beta").toString()
+def effectiveModVersion = (findProperty("mod_version") ?: "1.2-beta").toString()
 def effectiveArchiveBaseName = "${project.archives_base_name}-fabric-${targetMinecraftVersion}"
 def effectiveMinecraftDependency = versionConfig.minecraftDependency
 def effectiveFabricApiVersion = versionConfig.fabricApi
@@ -40,6 +40,11 @@ def effectiveJavaVersion = versionConfig.java
 
 apply plugin: modernMinecraft ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
 apply plugin: 'maven-publish'
+
+repositories {
+        maven { url = 'https://repo.redlance.org/public' }
+        maven { url = 'https://maven.kosmx.dev/' }
+}
 
 version = effectiveModVersion
 group = project.maven_group
@@ -55,7 +60,30 @@ if (modernMinecraft) {
 def versionSpecificJavaSources = []
 def excludedMainJava = []
 
+if (targetMinecraftVersion == "1.21.4" || targetMinecraftVersion == "1.21.6") {
+    excludedMainJava += ["com/swakoza/pubertymod/compat/PalPhysicsCompat.java"]
+    versionSpecificJavaSources += fileTree("src/compat/playeranimator/java")
+}
+if (targetMinecraftVersion == "1.21.10" || targetMinecraftVersion == "1.21.11") {
+    excludedMainJava += ["com/swakoza/pubertymod/compat/PalPhysicsCompat.java"]
+}
+
+
+if (targetMinecraftVersion == "1.21.10" || targetMinecraftVersion == "1.21.11") {
+    excludedMainJava += [
+        "com/swakoza/pubertymod/gui/screen/WardrobeBrowserScreen.java",
+        "com/swakoza/pubertymod/gui/screen/SwakozaPlayerListScreen.java",
+        "com/swakoza/pubertymod/compat/PreviewRenderCompat.java"
+    ]
+    versionSpecificJavaSources += fileTree("src/versions/1.21.11/java") {
+        if (targetMinecraftVersion == "1.21.10") {
+            exclude "com/swakoza/pubertymod/compat/PalPhysicsCompat.java"
+        }
+    }
+}
+
 if (targetMinecraftVersion == "1.21.10") {
+    versionSpecificJavaSources += fileTree("src/versions/1.21.10/java")
 	excludedMainJava += [
 			"com/swakoza/pubertymod/render/RenderLayerCompat.java"
 	]
@@ -78,6 +106,9 @@ if (targetMinecraftVersion == "1.21.6" || targetMinecraftVersion == "1.21.4") {
 if (targetMinecraftVersion == "1.21.1") {
 	excludedMainJava += [
 			"com/swakoza/pubertymod/compat/ArmorTrimCompat.java",
+            "com/swakoza/pubertymod/compat/PalPhysicsCompat.java",
+            "com/swakoza/pubertymod/compat/AttachmentPoseSampler.java",
+            "com/swakoza/pubertymod/compat/PreviewRenderCompat.java",
 			"com/swakoza/pubertymod/gui/SwakozaButton.java",
 			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
 			"com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java",
@@ -96,9 +127,15 @@ if (targetMinecraftVersion == "1.21.1") {
 			"com/swakoza/pubertymod/render/RenderLayerCompat.java",
 			"com/swakoza/pubertymod/render/SwakozaEntityRenderState.java"
 	]
+    excludedMainJava += [
+        "com/swakoza/pubertymod/compat/RenderTickCompat.java",
+        "com/swakoza/pubertymod/compat/ModelPartCompat.java"
+    ]
+    excludedMainJava += ["com/swakoza/pubertymod/compat/EntityCompat.java"]
 }
 
 if (targetMinecraftVersion == "1.21.6") {
+    excludedMainJava += ["com/swakoza/pubertymod/compat/EntityCompat.java"]
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java")
 }
 
@@ -109,23 +146,38 @@ if (targetMinecraftVersion == "1.21.10") {
 }
 
 if (targetMinecraftVersion == "1.21.4") {
+    excludedMainJava += ["com/swakoza/pubertymod/compat/PreviewRenderCompat.java"]
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+        exclude "com/swakoza/pubertymod/compat/EntityCompat.java"
 	}
 	versionSpecificJavaSources += fileTree("src/versions/1.21.4/java")
+    excludedMainJava += [
+        "com/swakoza/pubertymod/compat/RenderTickCompat.java",
+        "com/swakoza/pubertymod/compat/ModelPartCompat.java"
+    ]
+    excludedMainJava += ["com/swakoza/pubertymod/compat/EntityCompat.java"]
 }
 
 if (targetMinecraftVersion == "1.21.1") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
 		exclude "com/swakoza/pubertymod/gui/SwakozaButton.java"
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+        exclude "com/swakoza/pubertymod/compat/EntityCompat.java"
 		exclude "com/swakoza/pubertymod/render/GenderLayer.java"
 		exclude "com/swakoza/pubertymod/render/GenderArmorLayer.java"
 	}
 	versionSpecificJavaSources += fileTree("src/versions/1.21.4/java") {
+        exclude "com/swakoza/pubertymod/compat/PreviewRenderCompat.java"
+        exclude "com/swakoza/pubertymod/mixins/PreviewEntityRendererMixin.java"
+        exclude "com/swakoza/pubertymod/compat/RenderTickCompat.java"
+        exclude "com/swakoza/pubertymod/compat/ModelPartCompat.java"
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
+        exclude "com/swakoza/pubertymod/compat/EntityCompat.java"
 	}
-	versionSpecificJavaSources += fileTree("src/versions/1.21.1/java")
+	versionSpecificJavaSources += fileTree("src/versions/1.21.1/java") {
+        exclude "com/swakoza/pubertymod/render/BreastDeformation.java"
+    }
 }
 
 dependencies {
@@ -134,9 +186,25 @@ dependencies {
 		mappings "net.fabricmc:yarn:${versionConfig.yarn}:v2"
 		modImplementation "net.fabricmc:fabric-loader:${effectiveLoaderVersion}"
 		modImplementation "net.fabricmc.fabric-api:fabric-api:${effectiveFabricApiVersion}"
+        if (targetMinecraftVersion == "1.21.4" || targetMinecraftVersion == "1.21.6") {
+            def playerAnimatorVersion = targetMinecraftVersion == "1.21.4" ? "2.0.5+1.21.4" : "2.0.2+1.21.7"
+            modCompileOnly "dev.kosmx.player-anim:player-animation-lib-fabric:${playerAnimatorVersion}"
+        }
+        if (targetMinecraftVersion == "1.21.10") {
+            modCompileOnly "com.zigythebird.playeranim:PlayerAnimationLibFabric:1.1.3+mc.1.21.9"
+        }
+        if (targetMinecraftVersion == "1.21.11") {
+            modCompileOnly "com.zigythebird.playeranim:PlayerAnimationLibFabric:1.1.10+mc.1.21.11"
+        }
+
+        if (targetMinecraftVersion == "1.21.1") {
+            modCompileOnly "com.zigythebird.playeranim:PlayerAnimationLibFabric:1.1.6+mc.1.21.1"
+            modCompileOnly "dev.kosmx.player-anim:player-animation-lib-fabric:2.0.4+1.21.1"
+        }
 	} else {
 		implementation "net.fabricmc:fabric-loader:${effectiveLoaderVersion}"
 		implementation "net.fabricmc.fabric-api:fabric-api:${effectiveFabricApiVersion}"
+        compileOnly "com.zigythebird.playeranim:PlayerAnimationLibFabric:1.2.6+mc.26.1"
 	}
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
@@ -151,8 +219,8 @@ processResources {
 		expand inputs.properties
 	}
 
-	if (targetMinecraftVersion == "1.21.1") {
-		from("src/versions/1.21.1/resources")
+	if (targetMinecraftVersion == "1.21.1" || targetMinecraftVersion == "1.21.4") {
+		from("src/versions/${targetMinecraftVersion}/resources")
 		eachFile { details ->
 			if (details.path == "swakozas_puberty_mod.mixins.json"
 					&& details.file.absolutePath.replace('\\', '/').contains("/src/main/resources/")) {
@@ -167,6 +235,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.named("compileJava", JavaCompile).configure {
+    // Release bytecode stays reviewable, without local variable and source line tables.
+    it.options.debug = false
 	if (modernMinecraft) {
 		it.source = fileTree("src/versions/26.1/java")
 	} else if (!versionSpecificJavaSources.isEmpty()) {
@@ -242,3 +312,40 @@ publishing {
 	repositories {
 	}
 }
+
+sourceSets.create("physicsVerification") {
+        java.srcDir("src/versions/1.21.1/test")
+        compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+        runtimeClasspath += output + compileClasspath + configurations.testRuntimeClasspath
+    }
+    tasks.register("verifyBreastDeformation", JavaExec) {
+        group = "verification"
+        description = "Checks attached breast geometry and normals at all displacement limits."
+        dependsOn tasks.named("physicsVerificationClasses")
+        classpath = sourceSets.physicsVerification.runtimeClasspath
+        mainClass = "com.swakoza.pubertymod.render.BreastDeformationTest"
+    }
+tasks.register("verifyTorsoPose", JavaExec) {
+    group = "verification"
+    description = "Checks gravity projection for forward and sideways torso bends."
+    dependsOn tasks.named("physicsVerificationClasses")
+    classpath = sourceSets.physicsVerification.runtimeClasspath
+    mainClass = "com.swakoza.pubertymod.render.TorsoPoseMathTest"
+}
+tasks.named("check") {
+    dependsOn tasks.named("verifyBreastDeformation"), tasks.named("verifyTorsoPose")
+}
+
+sourceSets.create("configVerification") {
+    java.srcDir("src/verification/java")
+    compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+    runtimeClasspath += output + compileClasspath + configurations.testRuntimeClasspath
+}
+tasks.register("verifyConfigurationStorage", JavaExec) {
+    group = "verification"
+    description = "Checks old player JSON, custom sounds and safe saving without touching game data."
+    dependsOn tasks.named("configVerificationClasses")
+    classpath = sourceSets.configVerification.runtimeClasspath
+    mainClass = "com.swakoza.pubertymod.main.config.ConfigurationStorageTest"
+}
+tasks.named("check") { dependsOn tasks.named("verifyConfigurationStorage") }

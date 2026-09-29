@@ -2,6 +2,9 @@ package com.swakoza.pubertymod.render;
 
 import com.swakoza.pubertymod.api.IGenderArmor;
 import com.swakoza.pubertymod.compat.EntityCompat;
+import com.swakoza.pubertymod.compat.TorsoPhysicsCompat;
+import com.swakoza.pubertymod.compat.PalPhysicsCompat;
+import com.swakoza.pubertymod.gui.SwakozaPreviewPlayerEntity;
 import com.swakoza.pubertymod.compat.ModelPartCompat;
 import com.swakoza.pubertymod.compat.RenderTickCompat;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
@@ -50,6 +53,12 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
     private final OverlayModelBox lBreastWear;
     private final OverlayModelBox rBreastWear;
     private float preBreastSize = 0f;
+    private int previousDepth = -1;
+    protected BreastDeformation.Displacement deformation = BreastDeformation.Displacement.ZERO;
+    protected BreastDeformation.BackPlane backPlane;
+    protected float lPhysPositionZ, rPhysPositionZ;
+    protected float renderTickProgress;
+    protected float rawBustSize;
     private Breasts breasts;
     protected ItemStack armorStack = ItemStack.EMPTY;
     protected IGenderArmor genderArmor;
@@ -87,11 +96,13 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
         if (this.entityConfig == null) return;
 
             float tickProgress = RenderTickCompat.getTickProgress(MinecraftClient.getInstance(), true);
+        this.renderTickProgress = tickProgress;
         try {
             if (!setupRender(entity, state, tickProgress)) return;
 
             int overlay = LivingEntityRenderer.getOverlay(state, 0.0F);
             ModelPart body = getContextModel().body;
+            TorsoPhysicsCompat.capture(entity, this.entityConfig, body);
 
             matrices.push();
             try {
@@ -165,30 +176,40 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
         this.breastOffsetZ = -Math.round((Math.round(this.breasts.getZOffset() * 100f) / 100f) * 10) / 10f;
 
         BreastPhysics leftBreastPhysics = this.entityConfig.getLeftBreastPhysics();
-        final float bSize = leftBreastPhysics.getBreastSize(tickProgress);
-        this.outwardAngle = Math.min((Math.round(this.breasts.getCleavage() * 100f) / 100f) * 100f, 10);
+        boolean staticPreview = entity instanceof SwakozaPreviewPlayerEntity;
+        final float bSize = staticPreview
+                ? (this.entityConfig.getGender().canHaveBreasts() ? this.entityConfig.getBustSize()
+                    * (1 - 0.15F * (this.entityConfig.getArmorPhysicsOverride() ? 0 : MathHelper.clamp(this.genderArmor.tightness(), 0, 1))) : 0)
+                : leftBreastPhysics.getBreastSize(tickProgress);
+        this.rawBustSize = bSize;
+        this.outwardAngle = Math.min((Math.round(this.breasts.getCleavage() * 100f) / 100f) * 100f, 30);
 
         float reducer = -1;
         if (bSize < 0.84f) reducer++;
         if (bSize < 0.72f) reducer++;
 
-        if (this.preBreastSize != bSize) {
-            this.lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, (int)(4 - this.breastOffsetZ - reducer), 0.0F, false);
-            this.rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, (int)(4 - this.breastOffsetZ - reducer), 0.0F, false);
+        int depth = Math.max(1, (int)(4 - this.breastOffsetZ - reducer));
+        if (this.previousDepth != depth) {
+            this.lBreast = new BreastModelBox(64, 64, 16, 17, -4F, 0.0F, 0F, 4, 5, depth, 0.0F, false);
+            this.rBreast = new BreastModelBox(64, 64, 20, 17, 0, 0.0F, 0F, 4, 5, depth, 0.0F, false);
             this.preBreastSize = bSize;
+            this.previousDepth = depth;
         }
 
         this.lPhysPositionY = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionY(), leftBreastPhysics.getPositionY());
         this.lPhysPositionX = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionX(), leftBreastPhysics.getPositionX());
+        this.lPhysPositionZ = MathHelper.lerp(tickProgress, leftBreastPhysics.getPrePositionZ(), leftBreastPhysics.getPositionZ());
         this.lPhysBounceRotation = MathHelper.lerp(tickProgress, leftBreastPhysics.getPreBounceRotation(), leftBreastPhysics.getBounceRotation());
         if (this.breasts.isUniboob()) {
             this.rPhysPositionY = this.lPhysPositionY;
             this.rTotalX = this.lPhysPositionX;
+                this.rPhysPositionZ = this.lPhysPositionZ;
             this.rPhysBounceRotation = this.lPhysBounceRotation;
         } else {
             BreastPhysics rightBreastPhysics = this.entityConfig.getRightBreastPhysics();
             this.rPhysPositionY = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionY(), rightBreastPhysics.getPositionY());
             this.rTotalX = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionX(), rightBreastPhysics.getPositionX());
+            this.rPhysPositionZ = MathHelper.lerp(tickProgress, rightBreastPhysics.getPrePositionZ(), rightBreastPhysics.getPositionZ());
             this.rPhysBounceRotation = MathHelper.lerp(tickProgress, rightBreastPhysics.getPreBounceRotation(), rightBreastPhysics.getBounceRotation());
         }
 
@@ -205,44 +226,42 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
                 && (!entity.isSubmergedInWater()
                 || StatusEffectUtil.hasWaterBreathing(entity)
                 || EntityCompat.getWorld(entity).getBlockState(new BlockPos(entity.getBlockX(), entity.getBlockY(), entity.getBlockZ())).isOf(Blocks.BUBBLE_COLUMN)));
-        this.bounceEnabled = this.entityConfig.hasBreastPhysics() && (!this.isChestplateOccupied || resistance < 1);
+        this.bounceEnabled = !staticPreview && this.entityConfig.hasBreastPhysics() && (!this.isChestplateOccupied || resistance < 1);
         return true;
     }
 
     protected void setupTransformations(LivingEntity entity, S state, ModelPart body, MatrixStack matrices, BreastSide side) {
         boolean left = side == BreastSide.LEFT;
         ModelPartCompat.applyTransform(body, matrices);
+        PalPhysicsCompat.applyTorsoBend(entity, matrices, this.renderTickProgress,
+                BreastTorsoAttachment.followsUpperHalf(this.breastOffsetY, this.rawBustSize,
+                        this.lBreast.posZ2 - this.lBreast.posZ1));
+        this.backPlane = BreastDeformation.BackPlane.atTorsoBack(matrices.peek().getPositionMatrix(), matrices.peek().getNormalMatrix());
 
-        if (this.bounceEnabled) {
-            matrices.translate((left ? this.lPhysPositionX : this.rTotalX) / 32f, 0, 0);
-            matrices.translate(0, (left ? this.lPhysPositionY : this.rPhysPositionY) / 32f, 0);
-        }
-
-        matrices.translate((left ? this.breastOffsetX : -this.breastOffsetX) * 0.0625f, 0.05625f + (this.breastOffsetY * 0.0625f), this.zOffset - 0.125f + (this.breastOffsetZ * 0.0625f));
-        if (!this.breasts.isUniboob()) matrices.translate(-0.125f * (left ? 1 : -1), 0, 0);
-        if (this.bounceEnabled) matrices.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * (Math.PI / 180f)), 0));
-        if (!this.breasts.isUniboob()) matrices.translate(0.125f * (left ? 1 : -1), 0, 0);
-
-        float rotationMultiplier = 0;
-        if (this.bounceEnabled) {
-            matrices.translate(0, -0.035f * this.breastSize, 0);
-            rotationMultiplier = -(left ? this.lPhysPositionY : this.rPhysPositionY) / 12f;
-        }
-        float totalRotation = this.bounceEnabled ? this.breastSize + rotationMultiplier : this.breastSize;
-        if (totalRotation > this.breastSize + 0.2F) totalRotation = this.breastSize + 0.2F;
-        totalRotation = Math.min(totalRotation, 1);
-
-        if (this.isChestplateOccupied) matrices.translate(0, 0, 0.01f);
-
-        matrices.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? this.outwardAngle : -this.outwardAngle) * (Math.PI / 180f)), 0));
-        matrices.multiply(new Quaternionf().rotationXYZ((float)(-35f * totalRotation * (Math.PI / 180f)), 0, 0));
-
+        this.deformation = this.bounceEnabled ? new BreastDeformation.Displacement(
+                MathHelper.clamp((left ? this.lPhysPositionX : this.rTotalX) * 0.4F
+                        + (left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * 0.08F, -1.25F, 1.25F),
+                MathHelper.clamp((left ? this.lPhysPositionY : this.rPhysPositionY) * 0.5F, -1.0F, 1.5F),
+                MathHelper.clamp((left ? this.lPhysPositionZ : this.rPhysPositionZ) * 0.25F, -0.75F, 0.75F))
+                : BreastDeformation.Displacement.ZERO;
+        float totalRotation = Math.min(this.breastSize, 1.0F);
+        float pitch = (float)(-35f * totalRotation * (Math.PI / 180f));
         if (this.breathingAnimation) {
-            float breathing = -MathHelper.cos(entity.age * 0.09F) * 0.45F + 0.45F;
-            matrices.multiply(new Quaternionf().rotationXYZ((float)(breathing * (Math.PI / 180f)), 0, 0));
+            float breathing = -MathHelper.cos((entity.age + this.renderTickProgress) * 0.09F) * 0.45F + 0.45F;
+            pitch += (float)(breathing * (Math.PI / 180f));
         }
-
-        matrices.scale(0.9995f, 1f, 1f);
+        float extraSize = Math.max(0.0F, Math.min(1.2F, this.rawBustSize - 0.8F));
+        float scaleY = 1.0F + extraSize * 0.25F;
+        float scaleZ = 1.0F + extraSize * 0.7F;
+        float originY = BreastDeformation.clampOriginY(0.05625f + this.breastOffsetY * 0.0625f,
+                pitch, scaleY, scaleZ, this.lBreast.posZ2 - this.lBreast.posZ1,
+                this.deformation.y(), this.deformation.z(), hasJacketLayer(state, entity), this instanceof GenderArmorLayer);
+        matrices.translate((left ? this.breastOffsetX : -this.breastOffsetX) * 0.0625f,
+                originY, this.zOffset - 0.125f + this.breastOffsetZ * 0.0625f);
+        if (this.isChestplateOccupied) matrices.translate(0, 0, 0.01f);
+        matrices.multiply(new Quaternionf().rotationXYZ(0, (float)((left ? this.outwardAngle : -this.outwardAngle) * (Math.PI / 180f)), 0));
+        matrices.multiply(new Quaternionf().rotationXYZ(pitch, 0, 0));
+        matrices.scale(0.9995f, scaleY, scaleZ);
     }
 
     protected boolean hasJacketLayer(S state, LivingEntity entity) {
@@ -274,17 +293,23 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
         }
     }
 
-    protected static void renderBox(SwakozaModelRenderer.ModelBox model, MatrixStack.Entry matrixEntry, VertexConsumer consumer, int light, int overlay,
+    protected void renderBox(SwakozaModelRenderer.ModelBox model, MatrixStack.Entry matrixEntry, VertexConsumer consumer, int light, int overlay,
             float red, float green, float blue, float alpha) {
         Matrix4f positionMatrix = matrixEntry.getPositionMatrix();
         Matrix3f normalMatrix = matrixEntry.getNormalMatrix();
         int color = ColorHelper.fromFloats(alpha, red, green, blue);
         for (SwakozaModelRenderer.TexturedQuad quad : model.quads) {
             Vector3f normal = new Vector3f(quad.normal.x, quad.normal.y, quad.normal.z);
-            normal.mul(normalMatrix);
+            float depth = Math.max(0.001F, model.posZ2 - model.posZ1);
+            BreastDeformation.transformNormal(normal, depth, deformation.x(), deformation.y(), deformation.z());
+            normal.mul(normalMatrix).normalize();
             for (PositionTextureVertex vertex : quad.vertexPositions) {
-                Vector4f transformed = new Vector4f(vertex.x() / 16.0F, vertex.y() / 16.0F, vertex.z() / 16.0F, 1.0F);
+                float weight = BreastDeformation.weight(vertex.z(), model.posZ2, depth);
+                Vector4f transformed = new Vector4f((vertex.x() + deformation.x() * weight) / 16.0F,
+                        (vertex.y() + deformation.y() * weight) / 16.0F,
+                        (vertex.z() + deformation.z() * weight) / 16.0F, 1.0F);
                 transformed.mul(positionMatrix);
+                backPlane.keepInside(transformed);
                 consumer.vertex(transformed.x, transformed.y, transformed.z, color, vertex.texturePositionX(), vertex.texturePositionY(), overlay, light, normal.x, normal.y, normal.z);
             }
         }

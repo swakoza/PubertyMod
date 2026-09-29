@@ -1,20 +1,7 @@
 /*
-    Puberty Mod is a female gender mod created for Minecraft.
-    Copyright (C) 2023 swakoza
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
 
 package com.swakoza.pubertymod.gui;
 
@@ -93,11 +80,15 @@ public class SwakozaSlider extends ClickableWidget {
 
 	@Override
 	public boolean keyPressed(KeyInput input) {
-		boolean result = super.keyPressed(input);
-		if (input.key() == GLFW.GLFW_KEY_LEFT || input.key() == GLFW.GLFW_KEY_RIGHT) {
-			save();
-		}
-		return result;
+        if (input.key() == GLFW.GLFW_KEY_LEFT || input.key() == GLFW.GLFW_KEY_RIGHT) {
+            this.value = MathHelper.clamp(this.value + (input.key() == GLFW.GLFW_KEY_RIGHT ? 1 : -1)
+                    / (double)Math.max(1, this.width - 12), 0, 1);
+            applyValue();
+            updateMessage();
+            save();
+            return true;
+        }
+        return super.keyPressed(input);
 	}
 
 	protected MutableText getNarrationMessage() {
@@ -114,7 +105,8 @@ public class SwakozaSlider extends ClickableWidget {
 			ctx.fill(x, y, right, bottom, SwakozaScreenStyle.PANEL_BORDER_SOFT);
 			ctx.fill(x + 1, y + 1, right - 1, bottom - 1, SwakozaScreenStyle.PANEL_BACKGROUND_ALT);
 
-			int textColor = this.hovered || changed ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.TEXT_PRIMARY;
+			boolean highlighted = this.active && (this.hovered || this.isFocused());
+            int textColor = this.active ? SwakozaScreenStyle.TEXT_PRIMARY : SwakozaScreenStyle.TEXT_DIM;
 			TextRenderer font = MinecraftClient.getInstance().textRenderer;
 			int i = x + 4;
 			int j = right - 4;
@@ -124,13 +116,14 @@ public class SwakozaSlider extends ClickableWidget {
 			int trackRight = right - 6;
 			int trackTop = bottom - 6;
 			int trackBottom = bottom - 3;
-			ctx.fill(trackLeft, trackTop, trackRight, trackBottom, 0x55313A4A);
+			ctx.fill(trackLeft, trackTop, trackRight, trackBottom, highlighted ? 0xFF566078 : 0x55313A4A);
 
 			int progressRight = trackLeft + (int)(this.value * (double)(trackRight - trackLeft));
-			ctx.fill(trackLeft, trackTop, progressRight, trackBottom, SwakozaScreenStyle.ACCENT_SOFT);
+			ctx.fill(trackLeft, trackTop, progressRight, trackBottom, highlighted ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.ACCENT_SOFT);
 
 			int handleX = MathHelper.clamp(progressRight, trackLeft, trackRight - 1);
-			ctx.fill(handleX - 1, y + 3, handleX + 1, bottom - 3, SwakozaScreenStyle.ACCENT);
+			ctx.fill(handleX - 2, trackTop - 1, handleX + 3, trackBottom + 1, highlighted ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.PANEL_BORDER);
+            ctx.fill(handleX - 1, trackTop, handleX + 2, trackBottom, SwakozaScreenStyle.TEXT_PRIMARY);
 		}
 	}
 
@@ -143,13 +136,14 @@ public class SwakozaSlider extends ClickableWidget {
 	}
 
 	public void setValue(double value) {
-		setValueInternal(value);
+		this.value = MathHelper.clamp((value - this.minValue) / (this.maxValue - this.minValue), 0, 1);
 		applyValue();
+		updateMessage();
 	}
 
 	private void setValueInternal(double value) {
 		this.value = MathHelper.clamp((value - this.minValue) / (this.maxValue - this.minValue), 0, 1);
-		this.lastValue = (float) value;
+		this.lastValue = getFloatValue();
 		updateMessage();
 		//Note: Does not call applyValue
 	}
@@ -163,7 +157,7 @@ public class SwakozaSlider extends ClickableWidget {
 	public void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
 	private void setValueFromMouse(double mouseX) {
-		this.value = ((mouseX - (double)(this.getX() + 4)) / (double)(this.getWidth() - 8));
+		this.value = ((mouseX - (double)(this.getX() + 6)) / (double)(this.getWidth() - 12));
 		if (this.value < 0.0F) {
 			this.value = 0.0F;
 		}

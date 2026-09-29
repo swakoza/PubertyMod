@@ -1,6 +1,8 @@
 package com.swakoza.pubertymod.main;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.client.sound.OggAudioStream;
 
 import javax.sound.sampled.AudioFormat;
@@ -24,6 +26,7 @@ public final class CustomHurtSoundManager {
     public static final String DEFAULT_SOUND_FILE = "default.ogg";
     private static final String DEFAULT_SOUND_RESOURCE = "/assets/swakozas_puberty_mod/sounds/female_damage.ogg";
     private static final Map<UUID, ActiveSound> ACTIVE_SOUNDS = new ConcurrentHashMap<>();
+    private static final float HEARING_DISTANCE = 16.0F;
 
     private CustomHurtSoundManager() {}
 
@@ -77,7 +80,7 @@ public final class CustomHurtSoundManager {
         }
     }
 
-    public static boolean playRandom(UUID playerId, List<String> fileNames, float volume, boolean overlay) {
+    public static boolean playRandom(PlayerEntity source, List<String> fileNames, float volume, boolean overlay) {
         if (fileNames == null || fileNames.isEmpty()) {
             return false;
         }
@@ -92,8 +95,17 @@ public final class CustomHurtSoundManager {
             return false;
         }
 
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || client.world != com.swakoza.pubertymod.compat.EntityCompat.getWorld(source)) {
+            return true;
+        }
+        double distance = Math.sqrt(source.squaredDistanceTo(client.player));
+        if (distance >= HEARING_DISTANCE) {
+            return true;
+        }
+        float attenuation = (float) (1.0 - distance / HEARING_DISTANCE);
         String fileName = existing.get(ThreadLocalRandom.current().nextInt(existing.size()));
-        return play(playerId, fileName, volume, overlay);
+        return play(source.getUuid(), fileName, volume * attenuation * attenuation, overlay);
     }
 
     private static boolean isSoundFilePresent(String fileName) {
@@ -162,8 +174,8 @@ public final class CustomHurtSoundManager {
     }
 
     private static void applyVolume(byte[] data, AudioFormat format, float volume) {
-        float clampedVolume = Math.max(0.0F, Math.min(1.0F, volume));
-        if (clampedVolume >= 0.999F || !AudioFormat.Encoding.PCM_SIGNED.equals(format.getEncoding()) || format.getSampleSizeInBits() != 16) {
+        float clampedVolume = Math.max(0.0F, Math.min(1.5F, volume));
+        if (Math.abs(clampedVolume - 1.0F) < 0.001F || !AudioFormat.Encoding.PCM_SIGNED.equals(format.getEncoding()) || format.getSampleSizeInBits() != 16) {
             return;
         }
 
