@@ -1,4 +1,4 @@
-![Mod Banner](https://github.com/swakoza/Puberty-Mod/blob/main/src/main/resources/assets/swakozas_puberty_mod/banner.png?raw=true)
+![Mod Banner](https://github.com/swakoza/PubertyMod/blob/main/src/main/resources/assets/swakozas_puberty_mod/banner.png?raw=true)
 # Puberty Mod
 
 **Current version: 1.2 beta**
@@ -29,7 +29,7 @@ the hovered row in the player list when the search field is not focused.
 
 ## License
 
-Puberty-Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/Puberty-Mod/blob/main/LICENSE).
+Puberty-Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/PubertyMod/blob/main/LICENSE).
 
 ## Stored player settings
 
