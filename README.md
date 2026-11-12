@@ -1,7 +1,10 @@
-![Mod Banner](https://github.com/swakoza/PubertyMod/blob/main/src/main/resources/assets/swakozas_puberty_mod/banner.png?raw=true)
-# Puberty Mod
+![Puberty Banner](src/main/resources/assets/swakozas_puberty_mod/banner.png)
+# Puberty
 
 **Current version: 1.2 beta**
+
+The display name is **Puberty**. The Fabric ID, resource namespace and existing
+configuration paths remain unchanged so installed settings and integrations continue to work.
 
 This update adds configurable breast physics across supported Minecraft versions, improved player editing and previews, custom sound distance handling, and reusable presets for appearance, physics, and sounds.
 
@@ -12,7 +15,7 @@ You can also set custom damage sounds for players with the gender set to female 
 
 ## Default Controls
 
-G - Open Puberty Mod menu<br>
+G - Open Puberty menu<br>
 H - Opens the edit menu when you hover over a player 
 
 ## Minecraft 1.21.1
@@ -29,7 +32,7 @@ the hovered row in the player list when the search field is not focused.
 
 ## License
 
-Puberty-Mod is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/PubertyMod/blob/main/LICENSE).
+Puberty is licensed under MIT, a free and open-source license. For more information, please see the [license file](https://github.com/swakoza/PubertyMod/blob/main/LICENSE).
 
 ## Stored player settings
 
@@ -42,6 +45,10 @@ Both a single string and a list under `custom_hurt_sound` are readable.
 Loading player settings does not rewrite files. Saving retains unknown fields and
 writes through a temporary file; malformed originals are preserved and reported in the log.
 Run `verifyConfigurationStorage` to check persistence using temporary files.
+
+Use JDK 25 for builds (the 1.21 targets emit Java 21 bytecode).
+Build every supported target with `./gradlew buildAllVersions` or
+`gradlew.bat buildAllVersions` on Windows. GitHub Actions verifies the same seven targets.
 
 Versioned builds are available through `build copyVersionedJar -PtargetMinecraftVersion=<version>`.
 Release JARs omit Java debug tables while retaining reviewable bytecode and mod metadata.

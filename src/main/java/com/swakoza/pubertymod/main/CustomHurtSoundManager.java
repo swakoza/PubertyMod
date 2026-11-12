@@ -133,7 +133,7 @@ public final class CustomHurtSoundManager {
                     ACTIVE_SOUNDS.remove(playerId, activeSound);
                 }
             }
-        }, "PubertyMod-CustomHurtSound");
+        }, "Puberty-CustomHurtSound");
         thread.setDaemon(true);
         thread.start();
         return true;

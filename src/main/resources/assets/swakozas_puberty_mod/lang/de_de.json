@@ -1,16 +1,16 @@
 {
-	"category.swakozas_puberty_mod.generic": "Puberty Mod",
-	"key.category.swakozas_puberty_mod.generic": "Puberty Mod",
-	"key.categories.swakozas_puberty_mod.generic": "Puberty Mod",
+	"category.swakozas_puberty_mod.generic": "Puberty",
+	"key.category.swakozas_puberty_mod.generic": "Puberty",
+	"key.categories.swakozas_puberty_mod.generic": "Puberty",
 	"key.swakozas_puberty_mod.gender_menu": "Geschlechtsmenü",
 
-	"swakozas_puberty_mod.player_list.title": "Puberty Mod",
+	"swakozas_puberty_mod.player_list.title": "Puberty",
 	"swakozas_puberty_mod.player_list.settings_button": "Einstellungen",
 	"swakozas_puberty_mod.player_list.sync_status": "Synchronisierungsstatus",
 	"swakozas_puberty_mod.player_list.state.loading": "Lade Spieler..",
 	"swakozas_puberty_mod.player_list.state.synced": "Geladener Spieler",
 
-	"swakozas_puberty_mod.wardrobe.title": "Puberty Mod",
+	"swakozas_puberty_mod.wardrobe.title": "Puberty",
 	"swakozas_puberty_mod.editor.tab.appearance": "Aussehen",
 	"swakozas_puberty_mod.editor.tab.physics": "Physik",
 	"swakozas_puberty_mod.editor.tab.sounds": "Töne",
