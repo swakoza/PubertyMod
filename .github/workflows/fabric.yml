@@ -1,26 +1,31 @@
-﻿name: Build Fabric mod with Gradle
+name: Build Puberty with Gradle
 on:
   push:
+  pull_request:
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        minecraft: ["1.21.1", "1.21.4", "1.21.6", "1.21.10", "1.21.11", "26.1", "26.1.2"]
     steps:
-    - name: Get the repository contents.
-      uses: actions/checkout@v3
-      with:
-        clean: false
-    - name: Set up JDK 17
+    - name: Check out sources
+      uses: actions/checkout@v4
+    - name: Set up JDK 25
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: 17
-    - name: Attempt to compile using Gradle
+        distribution: temurin
+        java-version: 25
+    - name: Build and verify
       run: |
-       chmod +x gradlew
-       ./gradlew build
-    # we do not want -sources and -dev files, also this needs a github account to be downloaded via summary page.
-    - name: Upload compiled mod jars.
-      uses: actions/upload-artifact@v3
+        chmod +x gradlew
+        ./gradlew clean build copyVersionedJar -PtargetMinecraftVersion=${{ matrix.minecraft }} --no-daemon
+    - name: Upload Puberty JAR
+      uses: actions/upload-artifact@v4
       with:
-        name: WFGM-artifacts
-        path: build/libs/*[0-9].jar
+        name: Puberty-fabric-${{ matrix.minecraft }}
+        path: dist/${{ matrix.minecraft }}/Puberty-fabric-${{ matrix.minecraft }}-*.jar
+        if-no-files-found: error
