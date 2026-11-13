@@ -1,7 +1,7 @@
 ![Puberty Banner](src/main/resources/assets/swakozas_puberty_mod/banner.png)
 # Puberty
 
-**Current version: 1.2 beta**
+**Current version: 1.2**
 
 The display name is **Puberty**. The Fabric ID, resource namespace and existing
 configuration paths remain unchanged so installed settings and integrations continue to work.
