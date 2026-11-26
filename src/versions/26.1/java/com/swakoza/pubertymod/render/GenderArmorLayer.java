@@ -35,7 +35,6 @@ import net.minecraft.world.item.equipment.trim.ArmorTrim;
 
 public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends GenderLayer<S, M> {
 	private final EquipmentAssetManager equipmentModelLoader;
-	private final TextureAtlas armorTrimsAtlas;
 	protected final BreastModelBox lBoobArmor;
 	protected final BreastModelBox rBoobArmor;
 	protected final BreastModelBox lTrim;
@@ -44,7 +43,6 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 	public GenderArmorLayer(RenderLayerParent<S, M> render, EquipmentAssetManager equipmentModelLoader) {
 		super(render);
 		this.equipmentModelLoader = equipmentModelLoader;
-		this.armorTrimsAtlas = (TextureAtlas)Minecraft.getInstance().getTextureManager().getTexture(Sheets.ARMOR_TRIMS_SHEET);
 		this.lBoobArmor = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		this.rBoobArmor = new BreastModelBox(64, 32, 20, 17, 0, 0.0F, 0F, 4, 5, 3, 0.0F, false);
 		this.lTrim = new BreastModelBox(64, 32, 16, 17, -4F, 0.0F, 0F, 4, 5, 4, 0.001F, false);
@@ -97,13 +95,13 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 						net.minecraft.util.ARGB.blueFloat(color),
 						net.minecraft.util.ARGB.alphaFloat(color), deformation, backPlane));
 				if(hasGlint) {
-					queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(armorBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
+					queue.submitCustomGeometry(matrices, ArmorRenderCompat.layerGlint(texture), (entry, vertexConsumer) -> renderBox(armorBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
 				}
 			}
 
 			ArmorTrim trim = this.armorStack.get(DataComponents.TRIM);
 			if(trim != null) {
-				renderArmorTrim(assetKey, matrices, queue, light, trim, hasGlint, side);
+				renderArmorTrim(assetKey, equipmentModel, matrices, queue, light, trim, hasGlint, side);
 			}
 		} catch(Exception e) {
 			SwakozaPubertyMod.LOGGER.error("Failed to render breast armor", e);
@@ -118,18 +116,15 @@ public class GenderArmorLayer<S extends HumanoidRenderState, M extends HumanoidM
 		return DyedItemColor.getOrDefault(stack, defaultColor);
 	}
 
-	protected void renderArmorTrim(ResourceKey<EquipmentAsset> assetKey, PoseStack matrices, SubmitNodeCollector queue, int light,
-			ArmorTrim trim, boolean hasGlint, BreastSide side) {
+	protected void renderArmorTrim(ResourceKey<EquipmentAsset> assetKey, EquipmentClientInfo equipmentModel, PoseStack matrices,
+			SubmitNodeCollector queue, int light, ArmorTrim trim, boolean hasGlint, BreastSide side) {
         BreastDeformation.Displacement deformation = this.deformation;
         BreastDeformation.BackPlane backPlane = this.backPlane;
 		BreastModelBox trimBox = side == BreastSide.LEFT ? this.lTrim : this.rTrim;
-		TextureAtlasSprite sprite = this.armorTrimsAtlas.getSprite(trim.layerAssetId(EquipmentClientInfo.LayerType.HUMANOID.trimAssetPrefix(), assetKey));
-		queue.submitCustomGeometry(matrices, Sheets.armorTrimsSheet(trim.pattern().value().decal()), (entry, vertexConsumer) -> {
-			VertexConsumer spriteConsumer = sprite.wrap(vertexConsumer);
-			renderBox(trimBox, entry, spriteConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane);
-		});
+		ArmorRenderCompat.submitTrim(queue, matrices, trim, assetKey, equipmentModel,
+				(entry, vertexConsumer) -> renderBox(trimBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
 		if(hasGlint) {
-			queue.submitCustomGeometry(matrices, RenderLayerCompat.armorEntityGlint(), (entry, vertexConsumer) -> renderBox(trimBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
+			queue.submitCustomGeometry(matrices, ArmorRenderCompat.trimGlint(), (entry, vertexConsumer) -> renderBox(trimBox, entry, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f, deformation, backPlane));
 		}
 	}
 }

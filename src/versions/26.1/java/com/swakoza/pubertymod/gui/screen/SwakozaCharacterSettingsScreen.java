@@ -52,7 +52,7 @@ public class SwakozaCharacterSettingsScreen extends BaseSwakozaScreen {
         int buttonWidth = PANEL_WIDTH - 20;
 
         this.addRenderableWidget(new SwakozaButton(panelX() + PANEL_WIDTH - 14, panelY() + 4, 10, 10, Component.literal("X"),
-                button -> Minecraft.getInstance().setScreen(parent)));
+                button -> com.swakoza.pubertymod.compat.ScreenCompat.set(parent)));
 
         this.addRenderableWidget(new SwakozaButton(buttonX, buttonY, buttonWidth, 20,
                 Component.translatable("swakozas_puberty_mod.char_settings.physics", player.hasBreastPhysics() ? ENABLED : DISABLED), button -> {

@@ -6,6 +6,7 @@
 package com.swakoza.pubertymod.mixins;
 
 import com.swakoza.pubertymod.render.GenderArmorLayer;
+import com.swakoza.pubertymod.render.BodyShapeLayer;
 import com.swakoza.pubertymod.render.GenderLayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,6 +30,7 @@ public abstract class PlayerRenderMixin extends LivingEntityRenderer<AbstractCli
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void swakozapuberty$addBreastLayers(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
+		this.addFeature(new BodyShapeLayer(this));
 		this.addFeature(new GenderLayer<>(this));
 		this.addFeature(new GenderArmorLayer<>(this, ctx.getEquipmentModelLoader()));
 	}

@@ -25,6 +25,7 @@ public class SwakozaPubertyModServer implements ModInitializer {
         SwakozaSync.registerPayloadTypes();
         ServerPlayNetworking.registerGlobalReceiver(SyncToServerPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
         ServerPlayNetworking.registerGlobalReceiver(RequestPlayerDataPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
+        ServerPlayNetworking.registerGlobalReceiver(com.swakoza.pubertymod.main.networking.ExtraSyncToServerPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
         EntityTrackingEvents.START_TRACKING.register(this::onBeginTracking);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> SwakozaSync.sendKnownPlayersToClient(handler.player));
     }

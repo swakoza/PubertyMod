@@ -12,4 +12,7 @@ public final class EntityCompat {
     public static Level getWorld(Entity entity) { return entity.level(); }
     public static float getPreviousBodyYaw(LivingEntity entity) { return entity.yBodyRotO; }
     public static float getLimbAnimationProgress(WalkAnimationState animator) { return animator.position(); }
+    public static boolean isSwinging(LivingEntity entity) { return entity.swinging; }
+    /** Grows while an arm swing runs; a drop means a new swing started. */
+    public static float swingPhase(LivingEntity entity) { return entity.swingTime; }
 }

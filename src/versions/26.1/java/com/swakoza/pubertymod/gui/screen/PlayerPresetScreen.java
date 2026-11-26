@@ -54,7 +54,7 @@ public class PlayerPresetScreen extends BaseSwakozaScreen {
         int bottom = panelY() + panelHeight();
 
         this.addRenderableWidget(new SwakozaButton(controlsX() + controlWidth() - 16, panelY() + 4, 12, 12,
-                Component.literal("X"), button -> Minecraft.getInstance().setScreen(parent)));
+                Component.literal("X"), button -> com.swakoza.pubertymod.compat.ScreenCompat.set(parent)));
 
         this.nameField = this.addRenderableWidget(new EditBox(this.font, x + 4, panelY() + 31,
                 width - 8, 12, Component.translatable("swakozas_puberty_mod.presets.name")));
@@ -152,7 +152,7 @@ public class PlayerPresetScreen extends BaseSwakozaScreen {
     }
 
     private void confirm(String titleKey, PlayerPresetStore.Preset preset, IOAction action) {
-        Minecraft.getInstance().setScreen(new ConfirmScreen(confirmed -> {
+        com.swakoza.pubertymod.compat.ScreenCompat.set(new ConfirmScreen(confirmed -> {
             if (confirmed) {
                 try {
                     action.run();
@@ -161,7 +161,7 @@ public class PlayerPresetScreen extends BaseSwakozaScreen {
                     showStorageError(ex);
                 }
             }
-            Minecraft.getInstance().setScreen(this);
+            com.swakoza.pubertymod.compat.ScreenCompat.set(this);
         }, Component.translatable(titleKey), Component.literal(preset.name())));
     }
 
@@ -247,7 +247,7 @@ public class PlayerPresetScreen extends BaseSwakozaScreen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        com.swakoza.pubertymod.compat.ScreenCompat.set(parent);
     }
 
     @FunctionalInterface

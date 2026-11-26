@@ -10,6 +10,7 @@ import com.swakoza.pubertymod.gui.screen.WardrobeBrowserScreen;
 import com.swakoza.pubertymod.compat.KeyBindingCompat;
 import com.swakoza.pubertymod.main.entitydata.EntityConfig;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
+import com.swakoza.pubertymod.main.networking.ExtraSyncToClientPacket;
 import com.swakoza.pubertymod.main.networking.SyncToClientPacket;
 import com.swakoza.pubertymod.main.networking.SyncToServerPacket;
 import com.swakoza.pubertymod.main.networking.SwakozaSync;
@@ -51,6 +52,7 @@ public class SwakozaEventHandler {
 		ClientTickEvents.END_CLIENT_TICK.register(SwakozaEventHandler::onClientTick);
 		ClientPlayConnectionEvents.DISCONNECT.register(SwakozaEventHandler::disconnect);
 		ClientPlayNetworking.registerGlobalReceiver(SyncToClientPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
+		ClientPlayNetworking.registerGlobalReceiver(ExtraSyncToClientPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
 	}
 
 	private static void onEntityLoad(Entity entity, World world) {

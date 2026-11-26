@@ -47,7 +47,7 @@ final class PalPhysicsCompatImpl {
         float bend = manager.get3DTransform("torso").bend;
         if (!BENDABLE_LOADED || bend == 0) return;
         matrices.translate(0, 0.375F, 0);
-        matrices.mulPose(new Quaternionf().rotationX(bend));
+        com.swakoza.pubertymod.compat.PoseCompat.rotate(matrices, new Quaternionf().rotationX(bend));
         matrices.translate(0, -0.375F, 0);
     }
 }

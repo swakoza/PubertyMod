@@ -121,6 +121,9 @@ public final class PlayerPresetStore {
         apply(values, Configuration.HURT_SOUND_VOLUME, player::updateHurtSoundVolume);
         apply(values, Configuration.HURT_SOUND_OVERLAY, player::updateHurtSoundOverlay);
         apply(values, Configuration.CUSTOM_HURT_SOUNDS, player::updateCustomHurtSounds);
+        for (ExtraSetting setting : ExtraSetting.all()) {
+            apply(values, setting.config, value -> player.updateExtra(setting, setting.clamp(value)));
+        }
     }
 
     private static <T> void apply(JsonObject values, ConfigKey<T> key, Consumer<T> update) {

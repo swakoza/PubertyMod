@@ -12,4 +12,5 @@ public final class EntityCompat {
     public static World getWorld(Entity entity) { return entity.getEntityWorld(); }
     public static float getPreviousBodyYaw(LivingEntity entity) { return entity.lastBodyYaw; }
     public static float getLimbAnimationProgress(LimbAnimator animator) { return animator.getAnimationProgress(); }
+    public static boolean isGliding(LivingEntity entity) { return entity.isGliding(); }
 }

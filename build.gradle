@@ -11,7 +11,7 @@ buildscript {
 		gradlePluginPortal()
 	}
 	dependencies {
-		classpath "net.fabricmc:fabric-loom:${requestedMinecraftVersion.toString().startsWith("26.") ? "1.17-SNAPSHOT" : project.loom_version}"
+		classpath "net.fabricmc:fabric-loom:${requestedMinecraftVersion.toString().startsWith("26.") ? project.modern_loom_version : project.loom_version}"
 	}
 }
 
@@ -23,7 +23,9 @@ def versionConfigs = [
 		"1.21.10": [yarn: "1.21.10+build.2", fabricApi: "0.138.4+1.21.10", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.10"],
 		"1.21.11": [yarn: "1.21.11+build.5", fabricApi: "0.141.3+1.21.11", loader: "0.19.2", java: 21, minecraftDependency: "~1.21.11"],
 		"26.1"   : [fabricApi: "0.149.1+26.1.2", loader: "0.19.3", java: 25, minecraftDependency: "~26.1"],
-		"26.1.2" : [fabricApi: "0.149.1+26.1.2", loader: "0.19.3", java: 25, minecraftDependency: "~26.1"]
+		"26.1.2" : [fabricApi: "0.149.1+26.1.2", loader: "0.19.3", java: 25, minecraftDependency: "~26.1"],
+		"26.2"   : [fabricApi: "0.161.0+26.2", loader: "0.20.1", java: 25, minecraftDependency: "~26.2"],
+		"26.3"   : [fabricApi: "0.167.0+26.3", loader: "0.20.1", java: 25, minecraftDependency: "~26.3"]
 ]
 def versionConfig = versionConfigs[targetMinecraftVersion]
 if (versionConfig == null) {
@@ -53,8 +55,49 @@ base {
 	archivesName = effectiveArchiveBaseName
 }
 
+// 26.x: one shared tree (src/versions/26.1) plus overlays for later releases whose APIs moved.
+// A file in an overlay replaces the file with the same path in the shared tree.
+def modernOverlays = []
+if (modernMinecraft && ["26.2", "26.3"].contains(targetMinecraftVersion)) {
+	modernOverlays += "src/versions/26.2/java"
+}
+if (modernMinecraft && targetMinecraftVersion == "26.3" && file("src/versions/26.3/java").isDirectory()) {
+	modernOverlays += "src/versions/26.3/java"
+}
+def modernOverlayPaths = { ->
+	def paths = [] as Set
+	modernOverlays.each { dir ->
+		fileTree(dir).visit { if (!it.isDirectory()) paths << it.relativePath.pathString }
+	}
+	paths
+}
+def modernJavaSources = { ->
+	def overridden = modernOverlayPaths()
+	def sources = files(fileTree("src/versions/26.1/java") { exclude { e -> overridden.contains(e.relativePath.pathString) } })
+	// Later overlays win over earlier ones.
+	modernOverlays.eachWithIndex { dir, index ->
+		def laterPaths = [] as Set
+		modernOverlays.drop(index + 1).each { later -> fileTree(later).visit { if (!it.isDirectory()) laterPaths << it.relativePath.pathString } }
+		sources += files(fileTree(dir) { exclude { e -> laterPaths.contains(e.relativePath.pathString) } })
+	}
+	sources
+}
 if (modernMinecraft) {
 	sourceSets.main.java.setSrcDirs(["src/versions/26.1/java"])
+}
+afterEvaluate {
+	if (modernMinecraft && !modernOverlays.isEmpty()) {
+		tasks.named("sourcesJar", Jar).configure { jar ->
+			def overridden = modernOverlayPaths()
+			def sharedRoot = file("src/versions/26.1/java").absolutePath
+			// Drop shared files that an overlay replaces, then add the overlays.
+			jar.eachFile { details ->
+				if (overridden.contains(details.relativePath.pathString) && details.file.absolutePath.startsWith(sharedRoot)) details.exclude()
+			}
+			modernOverlays.each { jar.from(it) }
+			jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+		}
+	}
 }
 
 def versionSpecificJavaSources = []
@@ -92,6 +135,7 @@ if (targetMinecraftVersion == "1.21.10") {
 if (targetMinecraftVersion == "1.21.6" || targetMinecraftVersion == "1.21.4") {
 	excludedMainJava += [
 			"com/swakoza/pubertymod/gui/SwakozaButton.java",
+			"com/swakoza/pubertymod/gui/SwakozaToggle.java",
 			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
 			"com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java",
 			"com/swakoza/pubertymod/gui/SwakozaPlayerList.java",
@@ -110,6 +154,7 @@ if (targetMinecraftVersion == "1.21.1") {
             "com/swakoza/pubertymod/compat/AttachmentPoseSampler.java",
             "com/swakoza/pubertymod/compat/PreviewRenderCompat.java",
 			"com/swakoza/pubertymod/gui/SwakozaButton.java",
+			"com/swakoza/pubertymod/gui/SwakozaToggle.java",
 			"com/swakoza/pubertymod/gui/SwakozaSlider.java",
 			"com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java",
 			"com/swakoza/pubertymod/gui/SwakozaPlayerList.java",
@@ -125,7 +170,8 @@ if (targetMinecraftVersion == "1.21.1") {
 			"com/swakoza/pubertymod/render/GenderLayer.java",
 			"com/swakoza/pubertymod/render/GenderArmorLayer.java",
 			"com/swakoza/pubertymod/render/RenderLayerCompat.java",
-			"com/swakoza/pubertymod/render/SwakozaEntityRenderState.java"
+			"com/swakoza/pubertymod/render/SwakozaEntityRenderState.java",
+			"com/swakoza/pubertymod/mixins/PlayerEntityModelMixin.java"
 	]
     excludedMainJava += [
         "com/swakoza/pubertymod/compat/RenderTickCompat.java",
@@ -161,6 +207,7 @@ if (targetMinecraftVersion == "1.21.4") {
 
 if (targetMinecraftVersion == "1.21.1") {
 	versionSpecificJavaSources += fileTree("src/versions/1.21.6/java") {
+		exclude "com/swakoza/pubertymod/render/BodyShapeLayer.java"
 		exclude "com/swakoza/pubertymod/gui/SwakozaButton.java"
 		exclude "com/swakoza/pubertymod/gui/SwakozaBreastPresetList.java"
         exclude "com/swakoza/pubertymod/compat/EntityCompat.java"
@@ -238,7 +285,7 @@ tasks.named("compileJava", JavaCompile).configure {
     // Release bytecode stays reviewable, without local variable and source line tables.
     it.options.debug = false
 	if (modernMinecraft) {
-		it.source = fileTree("src/versions/26.1/java")
+		it.source = modernJavaSources()
 	} else if (!versionSpecificJavaSources.isEmpty()) {
 		it.source = files(fileTree("src/main/java") {
 			exclude excludedMainJava

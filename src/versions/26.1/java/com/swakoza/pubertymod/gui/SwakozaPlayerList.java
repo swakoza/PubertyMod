@@ -5,9 +5,9 @@
 
 package com.swakoza.pubertymod.gui;
 
-import com.swakoza.pubertymod.gui.screen.WardrobeBrowserScreen;
 import com.swakoza.pubertymod.gui.screen.SwakozaPlayerListScreen;
 import com.swakoza.pubertymod.compat.GameProfileCompat;
+import com.swakoza.pubertymod.main.Gender;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
 import com.swakoza.pubertymod.main.SwakozaHelper;
 import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
@@ -17,21 +17,25 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.scores.PlayerTeam;
+
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import net.minecraft.world.entity.player.Player;
 
 public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.Entry> {
+    public static final int ROW_HEIGHT = 22;
+    private static final long DOUBLE_CLICK_NANOS = 400_000_000L;
     private static final Comparator<PlayerInfo> ENTRY_ORDERING = Comparator
             .comparing((PlayerInfo entry) -> entry.getGameMode() == GameType.SPECTATOR)
             .thenComparing(entry -> {
@@ -45,11 +49,14 @@ public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.E
     private String filter = "";
     private boolean nearbyOnly;
     private final java.util.Map<UUID, Entry> entryCache = new java.util.HashMap<>();
+    private UUID lastClicked;
+    private long lastClickNanos;
 
     public SwakozaPlayerList(SwakozaPlayerListScreen parent, int listWidth, int top, int bottom) {
-        super(Minecraft.getInstance(), listWidth, bottom - top, top, 20);
+        super(Minecraft.getInstance(), listWidth, bottom - top, top, ROW_HEIGHT);
         this.parent = parent;
         this.listWidth = listWidth;
+        this.refreshList();
     }
 
     @Override
@@ -57,11 +64,14 @@ public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.E
         return getX() + listWidth - 6;
     }
 
-    protected void renderListBackground(GuiGraphicsExtractor context) {}
+    @Override
+    protected void extractListBackground(GuiGraphicsExtractor context) {}
 
-    protected void renderListSeparators(GuiGraphicsExtractor context) {}
+    @Override
+    protected void extractListSeparators(GuiGraphicsExtractor context) {}
 
-    protected void drawSelectionHighlight(GuiGraphicsExtractor context, com.swakoza.pubertymod.gui.SwakozaPlayerList.Entry entry, int color) {}
+    @Override
+    protected void extractSelection(GuiGraphicsExtractor context, Entry entry, int color) {}
 
     @Override
     public int getRowWidth() {
@@ -74,6 +84,20 @@ public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.E
 
     public void setNearbyOnly(boolean nearbyOnly) {
         this.nearbyOnly = nearbyOnly;
+    }
+
+    public List<Entry> entries() {
+        return this.children();
+    }
+
+    /** Scroll so that the row of the given player is visible. */
+    public void reveal(UUID uuid) {
+        for (Entry entry : this.children()) {
+            if (entry.uuid().equals(uuid)) {
+                this.scrollToEntry(entry);
+                return;
+            }
+        }
     }
 
     public void refreshList() {
@@ -140,20 +164,26 @@ public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.E
     @Environment(EnvType.CLIENT)
     public class Entry extends AbstractSelectionList.Entry<SwakozaPlayerList.Entry> {
         private final String name;
+        private final UUID uuid;
         private final PlayerInfo playerInfo;
         private final PlayerConfig playerConfig;
-        private final SwakozaButton btnOpenGUI;
 
         private Entry(PlayerInfo playerInfo) {
             this.playerInfo = playerInfo;
+            this.uuid = GameProfileCompat.id(playerInfo.getProfile());
             this.name = GameProfileCompat.name(playerInfo.getProfile());
-            this.playerConfig = SwakozaPubertyMod.getOrAddPlayerById(GameProfileCompat.id(playerInfo.getProfile()));
+            this.playerConfig = SwakozaPubertyMod.getOrAddPlayerById(this.uuid);
             if (this.playerConfig.getSyncStatus() == PlayerConfig.SyncStatus.UNKNOWN) {
-                SwakozaSync.requestPlayerData(GameProfileCompat.id(playerInfo.getProfile()));
+                SwakozaSync.requestPlayerData(this.uuid);
             }
-            this.btnOpenGUI = new SwakozaButton(0, 0, getRowWidth() - 6, defaultEntryHeight, Component.empty(), button ->
-                    Minecraft.getInstance().setScreen(new WardrobeBrowserScreen(parent, GameProfileCompat.id(playerInfo.getProfile()))));
-            this.btnOpenGUI.setTransparent(true);
+        }
+
+        public UUID uuid() {
+            return this.uuid;
+        }
+
+        public PlayerInfo playerInfo() {
+            return this.playerInfo;
         }
 
         @Override
@@ -161,34 +191,52 @@ public class SwakozaPlayerList extends AbstractSelectionList<SwakozaPlayerList.E
             Font font = Minecraft.getInstance().font;
             int x = getX();
             int y = getY();
-            int rowRight = x + getRowWidth() - 6;
-            if (hovered) {
-                ctx.fill(x, y, rowRight, y + defaultEntryHeight - 1, 0x241B2030);
-                ctx.fill(x, y, rowRight, y + 1, SwakozaScreenStyle.ACCENT_SOFT);
+            int rowRight = x + getRowWidth() - 8;
+            int rowBottom = y + ROW_HEIGHT - 1;
+            Gender gender = this.playerConfig.getGender();
+            int genderColor = SwakozaScreenStyle.genderColor(gender);
+            boolean selected = this.uuid.equals(parent.getSelectedUuid());
+
+            if (selected) {
+                ctx.fill(x, y, rowRight, rowBottom, SwakozaScreenStyle.withAlpha(genderColor, 0x30));
+                ctx.fill(x, y, x + 2, rowBottom, genderColor);
+            } else if (hovered) {
+                ctx.fill(x, y, rowRight, rowBottom, SwakozaScreenStyle.ROW_HOVER);
             }
 
-            PlayerFaceExtractor.extractRenderState(ctx, playerInfo.getSkin(), x + 2, y + 2, 16);
-            boolean clippedName = SwakozaScreenStyle.drawFittedText(ctx, font, Component.literal(name), x + 23, y + 2, rowRight - x - 25, SwakozaScreenStyle.TEXT_PRIMARY);
+            PlayerFaceExtractor.extractRenderState(ctx, playerInfo.getSkin(), x + 5, y + 3, 16);
+            int textX = x + 25;
+            int textWidth = rowRight - textX - 10;
+            boolean clippedName = SwakozaScreenStyle.drawFittedText(ctx, font, Component.literal(name), textX, y + 3, textWidth,
+                    SwakozaScreenStyle.TEXT_PRIMARY);
+            SwakozaScreenStyle.drawFittedText(ctx, font, SwakozaScreenStyle.genderLabel(gender), textX, y + 12, textWidth, genderColor);
 
-            SwakozaScreenStyle.drawFittedText(ctx, font, this.playerConfig.getGender().getDisplayName(), x + 23, y + 11, rowRight - x - 25, SwakozaScreenStyle.ACCENT);
-
-            this.btnOpenGUI.setX(x);
-            this.btnOpenGUI.setY(y);
-            this.btnOpenGUI.extractRenderState(ctx, mouseX, mouseY, partialTicks);
+            SwakozaScreenStyle.drawDot(ctx, rowRight - 7, y + 9, SwakozaScreenStyle.syncColor(this.playerConfig.getSyncStatus()));
 
             if (hovered) {
-                if (clippedName) parent.setTooltip(Component.literal(name));
-                parent.setHoveredPlayer(this.playerConfig);
-                parent.setHoveredEntry(this.playerInfo);
+                if (mouseX >= rowRight - 10 && mouseX < rowRight) {
+                    parent.setTooltip(SwakozaScreenStyle.syncLabel(this.playerConfig.getSyncStatus()));
+                } else if (clippedName) {
+                    parent.setTooltip(Component.literal(name));
+                }
             }
         }
 
         @Override
         public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-            if (this.btnOpenGUI.mouseClicked(click, doubled)) {
-                return true;
+            if (click.button() != 0) {
+                return false;
             }
-            return super.mouseClicked(click, doubled);
+            long now = System.nanoTime();
+            boolean secondClick = doubled || (this.uuid.equals(lastClicked) && now - lastClickNanos <= DOUBLE_CLICK_NANOS);
+            lastClicked = this.uuid;
+            lastClickNanos = now;
+            parent.select(this.uuid);
+            if (secondClick) {
+                lastClicked = null;
+                parent.openEditor(this.uuid);
+            }
+            return true;
         }
     }
 }

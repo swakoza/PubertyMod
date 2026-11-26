@@ -240,9 +240,9 @@ public class GenderLayer<S extends BipedEntityRenderState, M extends BipedEntity
 
         this.deformation = this.bounceEnabled ? new BreastDeformation.Displacement(
                 MathHelper.clamp((left ? this.lPhysPositionX : this.rTotalX) * 0.4F
-                        + (left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * 0.08F, -1.25F, 1.25F),
-                MathHelper.clamp((left ? this.lPhysPositionY : this.rPhysPositionY) * 0.5F, -1.0F, 1.5F),
-                MathHelper.clamp((left ? this.lPhysPositionZ : this.rPhysPositionZ) * 0.25F, -0.75F, 0.75F))
+                        + (left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * 0.08F, -2.6F, 2.6F),
+                MathHelper.clamp((left ? this.lPhysPositionY : this.rPhysPositionY) * 0.5F, -2.3F, 3.1F),
+                MathHelper.clamp((left ? this.lPhysPositionZ : this.rPhysPositionZ) * 0.25F, -1.7F, 1.7F))
                 : BreastDeformation.Displacement.ZERO;
         float totalRotation = Math.min(this.breastSize, 1.0F);
         float pitch = (float)(-35f * totalRotation * (Math.PI / 180f));

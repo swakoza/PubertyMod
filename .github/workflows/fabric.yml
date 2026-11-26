@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: ["1.21.1", "1.21.4", "1.21.6", "1.21.10", "1.21.11", "26.1", "26.1.2"]
+        minecraft: ["1.21.1", "1.21.4", "1.21.6", "1.21.10", "1.21.11", "26.1", "26.1.2", "26.2", "26.3"]
     steps:
     - name: Check out sources
       uses: actions/checkout@v4
@@ -20,9 +20,7 @@ jobs:
         distribution: temurin
         java-version: 25
     - name: Build and verify
-      run: |
-        chmod +x gradlew
-        ./gradlew clean build copyVersionedJar -PtargetMinecraftVersion=${{ matrix.minecraft }} --no-daemon
+      run: ./gradlew clean build copyVersionedJar -PtargetMinecraftVersion=${{ matrix.minecraft }} --no-daemon
     - name: Upload Puberty JAR
       uses: actions/upload-artifact@v4
       with:

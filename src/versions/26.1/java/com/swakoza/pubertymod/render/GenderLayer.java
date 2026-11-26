@@ -268,10 +268,10 @@ public class GenderLayer<S extends HumanoidRenderState, M extends HumanoidModel<
         this.backPlane = BreastDeformation.BackPlane.atTorsoBack(matrices.last().pose(), matrices.last().normal());
 
         this.deformation = this.bounceEnabled ? new BreastDeformation.Displacement(
-                Mth.clamp((left ? this.lPhysPositionX : this.rTotalX) * 0.4F
-                        + (left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * 0.08F, -1.25F, 1.25F),
-                Mth.clamp((left ? this.lPhysPositionY : this.rPhysPositionY) * 0.5F, -1.0F, 1.5F),
-                Mth.clamp((left ? this.lPhysPositionZ : this.rPhysPositionZ) * 0.25F, -0.75F, 0.75F))
+                Mth.clamp((left ? this.lPhysPositionX : this.rTotalX) * com.swakoza.pubertymod.physics.BreastPhysics.RENDER_SCALE_X
+                        + (left ? this.lPhysBounceRotation : this.rPhysBounceRotation) * 0.08F, -2.6F, 2.6F),
+                Mth.clamp((left ? this.lPhysPositionY : this.rPhysPositionY) * com.swakoza.pubertymod.physics.BreastPhysics.RENDER_SCALE_Y, -2.3F, 3.1F),
+                Mth.clamp((left ? this.lPhysPositionZ : this.rPhysPositionZ) * com.swakoza.pubertymod.physics.BreastPhysics.RENDER_SCALE_Z, -1.7F, 1.7F))
                 : BreastDeformation.Displacement.ZERO;
         float totalRotation = Math.min(this.breastSize, 1.0F);
         float pitch = (float)(-35f * totalRotation * (Math.PI / 180f));
@@ -288,8 +288,8 @@ public class GenderLayer<S extends HumanoidRenderState, M extends HumanoidModel<
         matrices.translate((left ? this.breastOffsetX : -this.breastOffsetX) * 0.0625f,
                 originY, this.zOffset - 0.125f + this.breastOffsetZ * 0.0625f);
         if (this.isChestplateOccupied) matrices.translate(0, 0, 0.01f);
-        matrices.mulPose(new Quaternionf().rotationXYZ(0, (float)((left ? this.outwardAngle : -this.outwardAngle) * (Math.PI / 180f)), 0));
-        matrices.mulPose(new Quaternionf().rotationXYZ(pitch, 0, 0));
+        com.swakoza.pubertymod.compat.PoseCompat.rotate(matrices, new Quaternionf().rotationXYZ(0, (float)((left ? this.outwardAngle : -this.outwardAngle) * (Math.PI / 180f)), 0));
+        com.swakoza.pubertymod.compat.PoseCompat.rotate(matrices, new Quaternionf().rotationXYZ(pitch, 0, 0));
         matrices.scale(0.9995f, scaleY, scaleZ);
 	}
 

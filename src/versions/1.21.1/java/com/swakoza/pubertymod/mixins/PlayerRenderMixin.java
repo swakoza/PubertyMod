@@ -35,6 +35,7 @@ public abstract class PlayerRenderMixin extends LivingEntityRenderer<AbstractCli
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void swakozapuberty$addBreastLayers(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
+        this.addFeature(new com.swakoza.pubertymod.render.BodyShapeLayer(this));
         this.addFeature(new GenderLayer<>(this));
         this.addFeature(new GenderArmorLayer<>(this, ctx.getModelManager()));
     }

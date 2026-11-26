@@ -6,7 +6,7 @@
 The display name is **Puberty**. The Fabric ID, resource namespace and existing
 configuration paths remain unchanged so installed settings and integrations continue to work.
 
-This update adds configurable breast physics across supported Minecraft versions, improved player editing and previews, custom sound distance handling, and reusable presets for appearance, physics, and sounds.
+This update adds waist and hip customization, movement-based breast physics, and a redesigned player list and editor. Presets can be managed from the editor alongside appearance, physics, and sound settings.
 
 ### Description
 This mod adds the ability to visually customize other players' models by changing their gender.<br>
@@ -18,10 +18,9 @@ You can also set custom damage sounds for players with the gender set to female 
 G - Open Puberty menu<br>
 H - Opens the edit menu when you hover over a player 
 
-## Minecraft 1.21.1
+## Player previews
 
-Build the Fabric test jar with `gradlew.bat build copyVersionedJar -PtargetMinecraftVersion=1.21.1`.
-The jar is copied to `dist/1.21.1`. Breast physics reacts to jumps and torso animations
+Breast physics reacts to jumps and torso animations
 from EmoteCraft/playerAnimator or Player Animation Library when those mods are installed.
 The animation libraries are optional at runtime.
 The editor locks the preview camera while showing actions and emotes of loaded players.
@@ -46,13 +45,19 @@ Loading player settings does not rewrite files. Saving retains unknown fields an
 writes through a temporary file; malformed originals are preserved and reported in the log.
 Run `verifyConfigurationStorage` to check persistence using temporary files.
 
-Use JDK 25 for builds (the 1.21 targets emit Java 21 bytecode).
-Build every supported target with `./gradlew buildAllVersions` or
-`gradlew.bat buildAllVersions` on Windows. GitHub Actions verifies the same seven targets.
+## Build from source
 
-Versioned builds are available through `build copyVersionedJar -PtargetMinecraftVersion=<version>`.
-Release JARs omit Java debug tables while retaining reviewable bytecode and mod metadata.
-Supported release targets: 1.21.1, 1.21.4, 1.21.6, 1.21.10, 1.21.11, 26.1 and 26.1.2.
+Install JDK 25 and set `JAVA_HOME` to its installation directory. The checked-in Gradle wrapper downloads Gradle and the build dependencies on the first run. The 1.21.x builds target Java 21, and the 26.x builds target Java 25.
+
+```sh
+git clone https://github.com/swakoza/PubertyMod.git
+cd PubertyMod
+./gradlew build copyVersionedJar -PtargetMinecraftVersion=1.21.11
+```
+
+On Windows, run `.\gradlew.bat build copyVersionedJar -PtargetMinecraftVersion=1.21.11` from the cloned repository. The installable JAR is written to `dist/1.21.11/Puberty-fabric-1.21.11-1.2.jar`. Use the JAR from `dist/<version>` in the Fabric `mods` directory with the corresponding Fabric API.
+
+You can set `targetMinecraftVersion` to `1.21.1`, `1.21.4`, `1.21.6`, `1.21.10`, `1.21.11`, `26.1`, `26.1.2`, `26.2`, or `26.3`. To build all nine targets, run `./gradlew buildAllVersions` or `.\gradlew.bat buildAllVersions` on Windows. GitHub Actions also builds all nine targets and publishes the resulting JARs as workflow artifacts.
 
 ## Physics on versioned builds
 
@@ -67,8 +72,9 @@ Optional animation API versions used to compile the adapters:
 - 1.21.1: PlayerAnimator 2.0.4+1.21.1 and PAL 1.1.6+mc.1.21.1.
 - 1.21.4: PlayerAnimator 2.0.5+1.21.4.
 - 1.21.6: PlayerAnimator 2.0.2+1.21.7, published for both 1.21.6 and 1.21.7.
-- 1.21.11: PAL 1.1.7+mc.1.21.11 (1.1.7 or later within the 1.1 API).
-- 26.1 / 26.1.2: PAL 1.2.6+mc.26.1 (1.2.6 or later within the 1.2 API).
+- 1.21.10: PAL 1.1.3+mc.1.21.9.
+- 1.21.11: PAL 1.1.10+mc.1.21.11.
+- 26.x: PAL 1.2.6+mc.26.1.
 
 Animation libraries remain optional and are not bundled. When PAL's API is older
 or outside the supported family, the mod uses the rendered torso pose and logs a

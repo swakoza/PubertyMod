@@ -25,6 +25,25 @@ public class SwakozaSync {
 		PayloadTypeRegistry.clientboundPlay().register(SyncToClientPacket.PACKET_ID, SyncToClientPacket.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SyncToServerPacket.PACKET_ID, SyncToServerPacket.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(RequestPlayerDataPacket.PACKET_ID, RequestPlayerDataPacket.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(ExtraSyncToClientPacket.PACKET_ID, ExtraSyncToClientPacket.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(ExtraSyncToServerPacket.PACKET_ID, ExtraSyncToServerPacket.CODEC);
+	}
+
+	/** Send the detailed physics/body values of {@code toSync} to every other player that understands them. */
+	public static void sendExtraToAllClients(ServerPlayer toSync, PlayerConfig playerConfig) {
+		if(playerConfig == null) return;
+		ExtraSyncToClientPacket packet = new ExtraSyncToClientPacket(playerConfig);
+		EntityCompat.getWorld(toSync).getServer().getPlayerList().getPlayers().forEach((sendTo) -> {
+			if (!sendTo.getUUID().equals(toSync.getUUID()) && ServerPlayNetworking.canSend(sendTo, ExtraSyncToClientPacket.PACKET_ID)) {
+				ServerPlayNetworking.send(sendTo, packet);
+			}
+		});
+	}
+
+	private static void sendExtraToClient(ServerPlayer sendTo, PlayerConfig toSync) {
+		if (ServerPlayNetworking.canSend(sendTo, ExtraSyncToClientPacket.PACKET_ID)) {
+			ServerPlayNetworking.send(sendTo, new ExtraSyncToClientPacket(toSync));
+		}
 	}
 
 	/**
@@ -54,6 +73,7 @@ public class SwakozaSync {
 			PlayerConfig playerConfig = com.swakoza.pubertymod.main.SwakozaPubertyMod.getPlayerById(player.getUUID());
 			if (playerConfig != null && ServerPlayNetworking.canSend(sendTo, SyncToClientPacket.PACKET_ID)) {
 				ServerPlayNetworking.send(sendTo, new SyncToClientPacket(playerConfig));
+				sendExtraToClient(sendTo, playerConfig);
 			}
 		});
 	}
@@ -67,6 +87,7 @@ public class SwakozaSync {
 	public static void sendToClient(ServerPlayer sendTo, PlayerConfig toSync) {
 		if(ServerPlayNetworking.canSend(sendTo, SyncToClientPacket.PACKET_ID)) {
 			ServerPlayNetworking.send(sendTo, new SyncToClientPacket(toSync));
+			sendExtraToClient(sendTo, toSync);
 		}
 	}
 
@@ -79,6 +100,9 @@ public class SwakozaSync {
 	public static void sendToServer(PlayerConfig plr) {
 	    if(plr == null || !plr.needsSync) return;
 	    ClientPlayNetworking.send(new SyncToServerPacket(plr));
+	    if (ClientPlayNetworking.canSend(ExtraSyncToServerPacket.PACKET_ID)) {
+	        ClientPlayNetworking.send(new ExtraSyncToServerPacket(plr));
+	    }
 	    plr.needsSync = false;
 	}
 

@@ -24,6 +24,8 @@ public final class PreviewRenderCompat {
         state.scoreText = null;
         state.nameTagAttachment = null;
         state.shadowPieces.clear();
+        // Full brightness, like the inventory: the preview must not go dark at night or underground.
+        state.lightCoords = 0xF000F0;
         state.outlineColor = 0;
         if (state instanceof LivingEntityRenderState living) {
             living.bodyRot = 180;

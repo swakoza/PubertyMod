@@ -61,7 +61,7 @@ public class SwakozaBreastCustomizationScreen extends BaseSwakozaScreen {
         int tabWidth = contentWidth / 2;
 
         this.addRenderableWidget(new SwakozaButton(controlsPanelX() + CONTROL_WIDTH - 14, controlsPanelY() + 4, 10, 10, Component.literal("X"),
-                button -> Minecraft.getInstance().setScreen(parent)));
+                button -> com.swakoza.pubertymod.compat.ScreenCompat.set(parent)));
 
         this.addRenderableWidget(this.btnCustomization = new SwakozaButton(contentX, controlsPanelY() + 24, tabWidth - 1, 14,
                 Component.translatable("swakozas_puberty_mod.breast_customization.tab_customization"), button -> {

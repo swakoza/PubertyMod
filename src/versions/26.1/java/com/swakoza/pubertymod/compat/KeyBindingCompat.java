@@ -13,6 +13,14 @@ import net.minecraft.resources.Identifier;
 public final class KeyBindingCompat {
     private KeyBindingCompat() {}
 
+    /** Keyboard input type: {@code KEYSYM} up to 26.2, {@code KEYBOARD} from 26.3. */
+    public static InputConstants.Type keyboardType() {
+        for (InputConstants.Type type : InputConstants.Type.values()) {
+            if (type.name().equals("KEYSYM") || type.name().equals("KEYBOARD")) return type;
+        }
+        return InputConstants.Type.values()[0];
+    }
+
     public static KeyMapping create(String translationKey, InputConstants.Type type, int code, Identifier categoryId) {
         try {
             Class<?> categoryClass = findCategoryClass();

@@ -218,11 +218,11 @@ public class GenderLayer<T extends LivingEntity, M extends BipedEntityModel<T>> 
         // Keep the attachment face fixed. Inertia deforms only the projecting
         // portion of the model, including jacket/armor layers in renderBox.
         deformationX = bounceEnabled ? MathHelper.clamp((left ? lPhysPositionX : rTotalX) * 0.4F
-                + (left ? lPhysBounceRotation : rPhysBounceRotation) * 0.08F, -1.25F, 1.25F) : 0.0F;
+                + (left ? lPhysBounceRotation : rPhysBounceRotation) * 0.08F, -2.6F, 2.6F) : 0.0F;
         deformationY = bounceEnabled ? MathHelper.clamp((left ? lPhysPositionY : rPhysPositionY) * 0.5F,
-                -1.0F, 1.5F) : 0.0F;
+                -2.3F, 3.1F) : 0.0F;
         deformationZ = bounceEnabled ? MathHelper.clamp((left ? lPhysPositionZ : rPhysPositionZ) * 0.25F,
-                -0.75F, 0.75F) : 0.0F;
+                -1.7F, 1.7F) : 0.0F;
 
         float totalRotation = Math.min(breastSize, 1.0F);
         float pitch = (float) Math.toRadians(-35f * totalRotation);

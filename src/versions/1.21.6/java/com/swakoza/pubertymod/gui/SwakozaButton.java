@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
+
 package com.swakoza.pubertymod.gui;
 
 import com.swakoza.pubertymod.main.SwakozaHelper;
@@ -10,74 +15,155 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 
 public class SwakozaButton extends ClickableWidget {
-    public interface PressAction {
-        void onPress(SwakozaButton button);
-    }
 
-    public boolean transparent = false;
-    private final PressAction onPress;
+   public interface PressAction {
+      void onPress(SwakozaButton button);
+   }
 
-    public SwakozaButton(int x, int y, int w, int h, Text text, PressAction onPress) {
-        super(x, y, w, h, text);
-        this.onPress = onPress;
-    }
+   public enum Variant {
+      /** Dark button with a light top edge. */
+      DEFAULT,
+      /** Filled with the screen accent, dark text. */
+      PRIMARY,
+      /** Red outline and text, for destructive confirmations. */
+      DANGER,
+      /** Text tab with an accent underline when selected. */
+      TAB,
+      /** Segment of a segmented control, filled with {@link #fillColor} when selected. */
+      SEGMENT
+   }
 
-    public SwakozaButton(int x, int y, int w, int h, Text text, PressAction onPress, Tooltip tooltip) {
-        this(x, y, w, h, text, onPress);
-        setTooltip(tooltip);
-    }
+   public boolean transparent = false;
+   private final PressAction onPress;
+   private final SwakozaClip clip = new SwakozaClip();
+   private final long[] lastFrame = new long[1];
+   private Variant variant = Variant.DEFAULT;
+   private boolean selected;
+   private int fillColor = SwakozaScreenStyle.ACCENT;
+   private int textColorOverride;
+   private float hoverAmount;
 
-    @Override
-    protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        TextRenderer font = minecraft.textRenderer;
-        int x = getX();
-        int y = getY();
-        int width = getWidth();
-        int height = getHeight();
+   public SwakozaButton(int x, int y, int w, int h, Text text, PressAction onPress) {
+      super(x, y, w, h, text);
+      this.onPress = onPress;
+   }
 
-        if (!transparent) {
-            int borderColor = this.active ? SwakozaScreenStyle.PANEL_BORDER_SOFT : 0x4430333A;
-            int fillColor = this.active ? SwakozaScreenStyle.PANEL_BACKGROUND_ALT : 0x88111216;
-            if (this.isHovered() && this.active) {
-                fillColor = 0xD0242833;
-                borderColor = SwakozaScreenStyle.ACCENT_SOFT;
+   public SwakozaButton(int x, int y, int w, int h, Text text, PressAction onPress, Tooltip tooltip) {
+      this(x, y, w, h, text, onPress);
+      setTooltip(tooltip);
+   }
+
+   @Override
+   protected void renderWidget(DrawContext ctx, int mouseX, int mouseY, float partialTicks) {
+      TextRenderer font = MinecraftClient.getInstance().textRenderer;
+      int x = getX();
+      int y = getY();
+      int right = x + getWidth();
+      int bottom = y + getHeight();
+      boolean hovered = (this.isHovered() || SwakozaClip.keyboardFocus(this.isFocused())) && this.active;
+      this.hoverAmount = SwakozaClip.approach(this.hoverAmount, hovered ? 1 : 0, this.lastFrame, 90);
+      float hover = this.hoverAmount;
+      int accent = SwakozaScreenStyle.accent();
+      int textColor = active ? SwakozaScreenStyle.TEXT_PRIMARY : SwakozaScreenStyle.TEXT_DIM;
+
+      if (transparent) {
+         if (hover > 0) ctx.fill(x, y, right, bottom, SwakozaScreenStyle.withAlpha(0xFFFFFF, Math.round(0x14 * hover)));
+      } else {
+         switch (variant) {
+            case PRIMARY -> {
+               ctx.fill(x, y, right, bottom, active ? accent : SwakozaScreenStyle.withAlpha(accent, 0x55));
+               ctx.fill(x, y, right, y + 1, active ? 0x88FFFFFF : 0x33FFFFFF);
+               if (hover > 0) ctx.fill(x, y + 1, right, bottom, SwakozaScreenStyle.withAlpha(0xFFFFFF, Math.round(0x22 * hover)));
+               textColor = SwakozaScreenStyle.TEXT_ON_ACCENT;
             }
+            case DANGER -> {
+               ctx.fill(x, y, right, bottom, SwakozaScreenStyle.DANGER);
+               ctx.fill(x + 1, y + 1, right - 1, bottom - 1, SwakozaClip.mix(SwakozaScreenStyle.PANEL_BACKGROUND_ALT, 0xFF3A1F27, hover));
+               textColor = SwakozaScreenStyle.DANGER;
+            }
+            case TAB -> {
+               if (!selected && hover > 0) ctx.fill(x, y, right, bottom, SwakozaScreenStyle.withAlpha(0xFFFFFF, Math.round(0x14 * hover)));
+               if (selected) ctx.fill(x + 3, bottom - 2, right - 3, bottom, accent);
+               textColor = selected ? SwakozaScreenStyle.TEXT_PRIMARY
+                       : SwakozaClip.mix(SwakozaScreenStyle.TEXT_DIM, SwakozaScreenStyle.TEXT_MUTED, hover);
+            }
+            case SEGMENT -> {
+               if (selected) {
+                  ctx.fill(x, y, right, bottom, fillColor);
+                  ctx.fill(x, y, right, y + 1, 0x88FFFFFF);
+                  textColor = SwakozaScreenStyle.TEXT_ON_ACCENT;
+               } else {
+                  ctx.fill(x, y, right, bottom, SwakozaClip.mix(SwakozaScreenStyle.INPUT_BORDER, SwakozaScreenStyle.withAlpha(fillColor, 0xCC), hover));
+                  ctx.fill(x + 1, y + 1, right - 1, bottom - 1, SwakozaScreenStyle.PANEL_BACKGROUND_ALT);
+                  textColor = SwakozaClip.mix(SwakozaScreenStyle.TEXT_MUTED, SwakozaScreenStyle.TEXT_PRIMARY, hover);
+               }
+            }
+            default -> {
+               int border = this.active ? SwakozaClip.mix(SwakozaScreenStyle.INPUT_BORDER, accent, hover) : 0x4430333A;
+               int fill = this.active ? SwakozaScreenStyle.PANEL_BACKGROUND_ALT : 0x88111216;
+               ctx.fill(x, y, right, bottom, border);
+               ctx.fill(x + 1, y + 1, right - 1, bottom - 1, fill);
+               ctx.fill(x + 1, y + 1, right - 1, y + 2, this.active ? SwakozaClip.mix(SwakozaScreenStyle.PANEL_BORDER, accent, hover) : SwakozaScreenStyle.PANEL_BORDER_SOFT);
+            }
+         }
+      }
 
-            ctx.fill(x, y, x + width, y + height, borderColor);
-            ctx.fill(x + 1, y + 1, x + width - 1, y + height - 1, fillColor);
-            ctx.fill(x + 1, y + 1, x + width - 1, y + 2, this.isHovered() && this.active ? SwakozaScreenStyle.ACCENT : SwakozaScreenStyle.PANEL_BORDER);
-        } else if (this.isHovered() && this.active) {
-            ctx.fill(x, y, x + width, y + 1, SwakozaScreenStyle.ACCENT_SOFT);
-            ctx.fill(x, y + height - 1, x + width, y + height, SwakozaScreenStyle.ACCENT_SOFT);
-        }
+      if (textColorOverride != 0 && active && !(variant == Variant.SEGMENT && selected)) {
+         textColor = textColorOverride;
+      }
+      SwakozaHelper.drawScrollableText(ctx, font, this.getMessage(), x + 2, y, right - 2, bottom, textColor);
+   }
 
-        int textColor = active ? SwakozaScreenStyle.TEXT_PRIMARY : SwakozaScreenStyle.TEXT_DIM;
-        int left = this.getX() + 2;
-        int right = this.getX() + this.getWidth() - 2;
-        SwakozaHelper.drawScrollableText(ctx, font, this.getMessage(), left, this.getY(), right, this.getY() + this.getHeight(), textColor);
-    }
+   @Override
+   public boolean isMouseOver(double mouseX, double mouseY) {
+      return super.isMouseOver(mouseX, mouseY) && this.clip.contains(mouseY);
+   }
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        if (this.active) {
-            ClickableWidget.playClickSound(MinecraftClient.getInstance().getSoundManager());
-            this.onPress.onPress(this);
-        }
-    }
+   @Override
+   public void onClick(double mouseX, double mouseY) {
+      if (this.active) {
+         this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+         this.onPress.onPress(this);
+      }
+   }
 
-    @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-        this.appendDefaultNarrations(builder);
-    }
+   @Override
+   protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+      this.appendDefaultNarrations(builder);
+   }
 
-    public SwakozaButton setTransparent(boolean b) {
-        this.transparent = b;
-        return this;
-    }
+   public SwakozaClip clip() {
+      return this.clip;
+   }
 
-    public SwakozaButton setActive(boolean b) {
-        this.active = b;
-        return this;
-    }
+   public SwakozaButton setTransparent(boolean b) {
+      this.transparent = b;
+      return this;
+   }
+
+   public SwakozaButton setActive(boolean b) {
+      this.active = b;
+      return this;
+   }
+
+   public SwakozaButton setVariant(Variant variant) {
+      this.variant = variant;
+      return this;
+   }
+
+   public SwakozaButton setSelected(boolean selected) {
+      this.selected = selected;
+      return this;
+   }
+
+   public SwakozaButton setFillColor(int color) {
+      this.fillColor = color;
+      return this;
+   }
+
+   /** Text colour used instead of the variant's own (0 restores the default). */
+   public SwakozaButton setTextColor(int color) {
+      this.textColorOverride = color;
+      return this;
+   }
 }

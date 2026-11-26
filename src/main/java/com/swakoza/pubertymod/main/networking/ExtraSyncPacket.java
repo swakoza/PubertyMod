@@ -1,0 +1,62 @@
+/*
+ * Copyright (c) 2023-2026 swakoza
+ * SPDX-License-Identifier: MIT
+ */
+
+package com.swakoza.pubertymod.main.networking;
+
+import com.swakoza.pubertymod.main.config.ExtraSetting;
+import com.swakoza.pubertymod.main.entitydata.PlayerConfig;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.packet.CustomPayload;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Detailed physics and body-shape values, sent on their own channel next to the original
+ * sync packet. Values travel by name, so unknown keys from newer versions are skipped and
+ * peers without this channel simply never receive it.
+ */
+abstract class ExtraSyncPacket implements CustomPayload {
+    private static final int MAX_ENTRIES = 64;
+
+    protected final UUID uuid;
+    private final Map<String, Float> values;
+
+    protected ExtraSyncPacket(PlayerConfig plr) {
+        this.uuid = plr.uuid;
+        this.values = new LinkedHashMap<>();
+        for (ExtraSetting setting : ExtraSetting.all()) {
+            this.values.put(setting.key, plr.getExtra(setting));
+        }
+    }
+
+    protected ExtraSyncPacket(RegistryByteBuf buffer) {
+        this.uuid = buffer.readUuid();
+        int count = Math.min(buffer.readVarInt(), MAX_ENTRIES);
+        this.values = new LinkedHashMap<>();
+        for (int i = 0; i < count; i++) {
+            String key = buffer.readString(64);
+            float value = buffer.readFloat();
+            this.values.put(key, value);
+        }
+    }
+
+    protected void write(RegistryByteBuf buffer) {
+        buffer.writeUuid(this.uuid);
+        buffer.writeVarInt(this.values.size());
+        this.values.forEach((key, value) -> {
+            buffer.writeString(key, 64);
+            buffer.writeFloat(value);
+        });
+    }
+
+    protected void updatePlayerFromPacket(PlayerConfig plr) {
+        this.values.forEach((key, value) -> {
+            ExtraSetting setting = ExtraSetting.byKey(key);
+            if (setting != null) plr.updateExtra(setting, setting.clamp(value));
+        });
+    }
+}

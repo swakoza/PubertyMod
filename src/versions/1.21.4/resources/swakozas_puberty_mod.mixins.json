@@ -10,6 +10,7 @@
   "client": [
     "ArmorStandEntityRendererMixin",
     "PlayerRenderMixin",
+    "PlayerEntityModelMixin",
     "BreastPhysicsTickMixin",
     "LivingEntityRenderStateMixin",
     "LivingEntityRendererMixin",

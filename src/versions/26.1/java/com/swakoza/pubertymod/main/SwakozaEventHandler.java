@@ -30,16 +30,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class SwakozaEventHandler {
 	public static final KeyMapping toggleEditGUI = KeyMappingHelper.registerKeyMapping(
-			KeyBindingCompat.create("key.swakozas_puberty_mod.gender_menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, SwakozaPubertyMod.id("generic")));
+			KeyBindingCompat.create("key.swakozas_puberty_mod.gender_menu", com.swakoza.pubertymod.compat.KeyBindingCompat.keyboardType(), InputConstants.KEY_G, SwakozaPubertyMod.id("generic")));
 	public static final KeyMapping editTargetPlayerGUI = KeyMappingHelper.registerKeyMapping(
-			KeyBindingCompat.create("key.swakozas_puberty_mod.target_player_menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, SwakozaPubertyMod.id("generic")));
+			KeyBindingCompat.create("key.swakozas_puberty_mod.target_player_menu", com.swakoza.pubertymod.compat.KeyBindingCompat.keyboardType(), InputConstants.KEY_H, SwakozaPubertyMod.id("generic")));
 	private static long timer = 0;
 
 	public static void registerClientEvents() {
@@ -48,6 +47,7 @@ public class SwakozaEventHandler {
 		ClientTickEvents.END_CLIENT_TICK.register(SwakozaEventHandler::onClientTick);
 		ClientPlayConnectionEvents.DISCONNECT.register(SwakozaEventHandler::disconnect);
 		ClientPlayNetworking.registerGlobalReceiver(SyncToClientPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
+		ClientPlayNetworking.registerGlobalReceiver(com.swakoza.pubertymod.main.networking.ExtraSyncToClientPacket.PACKET_ID, (packet, context) -> packet.handle(context.player()));
 	}
 
 	private static void onEntityLoad(Entity entity, Level world) {
@@ -79,11 +79,11 @@ public class SwakozaEventHandler {
 			if(aPlr != null) SwakozaSync.sendToServer(aPlr);
 		}
 
-		if(toggleEditGUI.consumeClick() && client.screen == null) {
-			client.setScreen(new SwakozaPlayerListScreen());
+		if(toggleEditGUI.consumeClick() && com.swakoza.pubertymod.compat.ScreenCompat.current() == null) {
+			com.swakoza.pubertymod.compat.ScreenCompat.set(new SwakozaPlayerListScreen());
 		}
 
-		if(editTargetPlayerGUI.consumeClick() && client.screen == null) {
+		if(editTargetPlayerGUI.consumeClick() && com.swakoza.pubertymod.compat.ScreenCompat.current() == null) {
 			openTargetPlayerMenu(client);
 		}
 	}
@@ -97,7 +97,7 @@ public class SwakozaEventHandler {
 		if(!targetPlayer.getUUID().equals(client.player.getUUID()) && targetConfig.getSyncStatus() == PlayerConfig.SyncStatus.UNKNOWN) {
 			SwakozaSync.requestPlayerData(targetPlayer.getUUID());
 		}
-		client.setScreen(new WardrobeBrowserScreen(null, targetPlayer.getUUID()));
+		com.swakoza.pubertymod.compat.ScreenCompat.set(new WardrobeBrowserScreen(null, targetPlayer.getUUID()));
 	}
 
 	private static void disconnect(ClientPacketListener networkHandler, Minecraft client) {

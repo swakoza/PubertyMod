@@ -21,6 +21,8 @@ public final class PreviewRenderCompat {
         EntityRenderState state = client.getEntityRenderDispatcher().getRenderer(entity).getAndUpdateRenderState(entity,
                 client.getRenderTickCounter().getTickProgress(false));
         state.shadowPieces.clear();
+        // Full brightness, like the inventory: the preview must not go dark at night or underground.
+        state.light = net.minecraft.client.render.LightmapTextureManager.MAX_LIGHT_COORDINATE;
         state.outlineColor = 0;
         state.displayName = null;
         state.nameLabelPos = null;

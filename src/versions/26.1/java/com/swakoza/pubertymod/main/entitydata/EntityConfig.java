@@ -5,6 +5,8 @@
 
 package com.swakoza.pubertymod.main.entitydata;
 
+import com.swakoza.pubertymod.main.config.ExtraSetting;
+
 import com.swakoza.pubertymod.api.IGenderArmor;
 import com.swakoza.pubertymod.compat.NbtCompat;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
@@ -50,6 +52,8 @@ public class EntityConfig {
 	protected final BreastPhysics lBreastPhysics, rBreastPhysics;
 	protected final Breasts breasts;
 	protected boolean jacketLayer = true;
+	/** Values of {@link ExtraSetting}, indexed by ordinal. */
+	protected final float[] extras = new float[ExtraSetting.all().length];
     private PalPhysicsCompat.AttachmentPose renderedTorsoPose;
     private int renderedTorsoTick = Integer.MIN_VALUE;
 
@@ -66,6 +70,9 @@ public class EntityConfig {
 	EntityConfig(UUID uuid) {
 		this.uuid = uuid;
 		this.breasts = new Breasts();
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			this.extras[setting.ordinal()] = setting.defaultValue();
+		}
 		lBreastPhysics = new BreastPhysics(this);
 		rBreastPhysics = new BreastPhysics(this);
 	}
@@ -146,6 +153,10 @@ public class EntityConfig {
 
 	public float getFloppiness() {
 		return this.floppyMultiplier;
+	}
+
+	public float getExtra(@Nonnull ExtraSetting setting) {
+		return this.extras[setting.ordinal()];
 	}
 
 	public @Nonnull BreastPhysics getLeftBreastPhysics() {

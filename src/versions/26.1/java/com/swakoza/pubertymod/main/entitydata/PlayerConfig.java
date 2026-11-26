@@ -5,6 +5,8 @@
 
 package com.swakoza.pubertymod.main.entitydata;
 
+import com.swakoza.pubertymod.main.config.ExtraSetting;
+
 import com.google.gson.JsonObject;
 import com.swakoza.pubertymod.main.SwakozaPubertyMod;
 import com.swakoza.pubertymod.main.config.ConfigKey;
@@ -60,6 +62,9 @@ public class PlayerConfig extends EntityConfig {
 		this.cfg.setDefault(Configuration.SHOW_IN_ARMOR);
 		this.cfg.setDefault(Configuration.BOUNCE_MULTIPLIER);
 		this.cfg.setDefault(Configuration.FLOPPY_MULTIPLIER);
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			this.cfg.setDefault(setting.config);
+		}
 		this.cfg.finish();
 		this.localConfigPresent = this.cfg.wasLoadedFromFile();
 		applyConfigValues(false, this.localConfigPresent);
@@ -153,6 +158,15 @@ public class PlayerConfig extends EntityConfig {
 		return updateValue(Configuration.FLOPPY_MULTIPLIER, value, v -> this.floppyMultiplier = v);
 	}
 
+	public boolean updateExtra(ExtraSetting setting, float value) {
+		return updateValue(setting.config, value, v -> this.extras[setting.ordinal()] = v);
+	}
+
+	private void resetExtras(ExtraSetting.Group group) {
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			if (setting.group == group) updateExtra(setting, setting.defaultValue());
+		}
+	}
 
 	public void resetAppearanceSettings() {
 		updateGender(Configuration.GENDER.getDefault());
@@ -163,6 +177,7 @@ public class PlayerConfig extends EntityConfig {
 		breasts.updateZOffset(Configuration.BREASTS_OFFSET_Z.getDefault());
 		breasts.updateCleavage(Configuration.BREASTS_CLEAVAGE.getDefault());
 		breasts.updateUniboob(Configuration.BREASTS_UNIBOOB.getDefault());
+		resetExtras(ExtraSetting.Group.APPEARANCE);
 	}
 
 	public void resetPhysicsSettings() {
@@ -171,6 +186,7 @@ public class PlayerConfig extends EntityConfig {
 		updateArmorPhysicsOverride(Configuration.ARMOR_PHYSICS_OVERRIDE.getDefault());
 		updateBounceMultiplier(Configuration.BOUNCE_MULTIPLIER.getDefault());
 		updateFloppiness(Configuration.FLOPPY_MULTIPLIER.getDefault());
+		resetExtras(ExtraSetting.Group.PHYSICS);
 	}
 
 	public void resetSoundSettings() {
@@ -210,6 +226,9 @@ public class PlayerConfig extends EntityConfig {
 		Configuration.BREASTS_OFFSET_Z.save(obj, breasts.getZOffset());
 		Configuration.BREASTS_UNIBOOB.save(obj, breasts.isUniboob());
 		Configuration.BREASTS_CLEAVAGE.save(obj, breasts.getCleavage());
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			setting.config.save(obj, plr.getExtra(setting));
+		}
 		return obj;
 	}
 
@@ -246,6 +265,9 @@ public class PlayerConfig extends EntityConfig {
 		breasts.updateZOffset(config.get(Configuration.BREASTS_OFFSET_Z));
 		breasts.updateUniboob(config.get(Configuration.BREASTS_UNIBOOB));
 		breasts.updateCleavage(config.get(Configuration.BREASTS_CLEAVAGE));
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			updateExtra(setting, setting.clamp(config.get(setting.config)));
+		}
 		if (markForSync) {
 			this.needsSync = true;
 		}
@@ -273,6 +295,9 @@ public class PlayerConfig extends EntityConfig {
 		config.set(Configuration.BREASTS_OFFSET_Z, plr.getBreasts().getZOffset());
 		config.set(Configuration.BREASTS_UNIBOOB, plr.getBreasts().isUniboob());
 		config.set(Configuration.BREASTS_CLEAVAGE, plr.getBreasts().getCleavage());
+		for (ExtraSetting setting : ExtraSetting.all()) {
+			config.set(setting.config, plr.getExtra(setting));
+		}
 
         if (config.save()) {
             plr.localConfigPresent = true;
