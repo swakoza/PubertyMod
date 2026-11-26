@@ -1,7 +1,7 @@
 ![Puberty Banner](src/main/resources/assets/swakozas_puberty_mod/banner.png)
 # Puberty
 
-**Current version: 1.2**
+**Current version: 1.3**
 
 The display name is **Puberty**. The Fabric ID, resource namespace and existing
 configuration paths remain unchanged so installed settings and integrations continue to work.
@@ -55,7 +55,7 @@ cd PubertyMod
 ./gradlew build copyVersionedJar -PtargetMinecraftVersion=1.21.11
 ```
 
-On Windows, run `.\gradlew.bat build copyVersionedJar -PtargetMinecraftVersion=1.21.11` from the cloned repository. The installable JAR is written to `dist/1.21.11/Puberty-fabric-1.21.11-1.2.jar`. Use the JAR from `dist/<version>` in the Fabric `mods` directory with the corresponding Fabric API.
+On Windows, run `.\gradlew.bat build copyVersionedJar -PtargetMinecraftVersion=1.21.11` from the cloned repository. The installable JAR is written to `dist/1.21.11/Puberty-fabric-1.21.11-1.3.jar`. Use the JAR from `dist/<version>` in the Fabric `mods` directory with the corresponding Fabric API.
 
 You can set `targetMinecraftVersion` to `1.21.1`, `1.21.4`, `1.21.6`, `1.21.10`, `1.21.11`, `26.1`, `26.1.2`, `26.2`, or `26.3`. To build all nine targets, run `./gradlew buildAllVersions` or `.\gradlew.bat buildAllVersions` on Windows. GitHub Actions also builds all nine targets and publishes the resulting JARs as workflow artifacts.
 

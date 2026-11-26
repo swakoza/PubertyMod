@@ -33,7 +33,7 @@ if (versionConfig == null) {
 }
 
 def modernMinecraft = targetMinecraftVersion.startsWith("26.")
-def effectiveModVersion = (findProperty("mod_version") ?: "1.2").toString()
+def effectiveModVersion = project.property("mod_version").toString()
 def effectiveArchiveBaseName = "${project.archives_base_name}-fabric-${targetMinecraftVersion}"
 def effectiveMinecraftDependency = versionConfig.minecraftDependency
 def effectiveFabricApiVersion = versionConfig.fabricApi
