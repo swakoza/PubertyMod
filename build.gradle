@@ -300,9 +300,12 @@ java {
 	targetCompatibility = JavaVersion.toVersion(effectiveJavaVersion)
 }
 
-jar {
-	from("LICENSE") {
-		rename { "${it}_${effectiveArchiveBaseName}" }
+def licenseFiles = files("LICENSE", "COPYING", "NOTICE", "LICENSE-MIT")
+["jar", "sourcesJar"].each { archiveTaskName ->
+	tasks.named(archiveTaskName, Jar).configure { archiveTask ->
+		archiveTask.from(licenseFiles) {
+			rename { "${it}_${effectiveArchiveBaseName}" }
+		}
 	}
 }
 

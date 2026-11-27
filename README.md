@@ -33,11 +33,15 @@ Install Fabric Loader and Fabric API for your Minecraft version, then put the ma
 Use JDK 25 and set `JAVA_HOME` to its installation directory.
 
 ```sh
-git clone --branch v1.3 https://github.com/swakoza/PubertyMod.git
+git clone https://github.com/swakoza/PubertyMod.git
 cd PubertyMod
 ./gradlew build copyVersionedJar -PtargetMinecraftVersion=1.21.11
 ```
 
 On Windows, use `.\gradlew.bat` in place of `./gradlew`. Choose any Minecraft version listed above. Run `./gradlew buildAllVersions` to build all nine targets. The JARs go in `dist/<minecraft-version>/`.
 
-[MIT license](LICENSE)
+## License and official downloads
+
+Puberty is distributed under the [GNU LGPL v3](LICENSE). See the [GNU GPL v3 terms](COPYING) and [copyright notices](NOTICE). The original fork source is available from [Female Gender Mod](https://github.com/FemaleGenderMod/FemaleGenderMod).
+
+For releases published by the Puberty maintainers, use [GitHub Releases](https://github.com/swakoza/PubertyMod/releases) or the [CurseForge project](https://www.curseforge.com/minecraft/mc-mods/puberty-female-gender). Redistribution is permitted under the conditions of the license.
