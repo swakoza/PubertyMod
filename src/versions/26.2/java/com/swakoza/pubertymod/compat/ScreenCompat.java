@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2023-2026 swakoza
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LGPL-3.0-only
  */
 
 package com.swakoza.pubertymod.compat;

@@ -300,7 +300,7 @@ java {
 	targetCompatibility = JavaVersion.toVersion(effectiveJavaVersion)
 }
 
-def licenseFiles = files("LICENSE", "COPYING", "NOTICE", "LICENSE-MIT")
+def licenseFiles = files("LICENSE", "COPYING", "NOTICE")
 ["jar", "sourcesJar"].each { archiveTaskName ->
 	tasks.named(archiveTaskName, Jar).configure { archiveTask ->
 		archiveTask.from(licenseFiles) {
